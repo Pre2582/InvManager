@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx eslint *)",
+      "Bash(pip --version)",
+      "Bash(pg_isready -h localhost -p 5432)",
+      "Bash(psql --version)",
+      "Bash(psql -U postgres -c \"\\\\l\")",
+      "Bash(python -c \"import fastapi; print\\('fastapi ok'\\)\")",
+      "Bash(python -c \"import uvicorn; print\\('uvicorn ok'\\)\")",
+      "Bash(python -c \"import asyncpg; print\\('asyncpg ok'\\)\")",
+      "Bash(pip install *)",
+      "Bash(psql *)"
+    ]
+  }
+}
