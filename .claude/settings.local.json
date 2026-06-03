@@ -13,7 +13,11 @@
       "Bash(psql *)",
       "Bash(Get-ChildItem *)",
       "PowerShell(Get-Command *)",
-      "PowerShell(& \"D:\\\\PREM\\\\Projects\\\\Assesment\\\\backend\\\\venv\\\\Scripts\\\\alembic.exe\" --version 2>&1)"
+      "PowerShell(& \"D:\\\\PREM\\\\Projects\\\\Assesment\\\\backend\\\\venv\\\\Scripts\\\\alembic.exe\" --version 2>&1)",
+      "PowerShell(railway *)",
+      "PowerShell(npm install *)",
+      "PowerShell(railway whoami *)",
+      "PowerShell(railway login *)"
     ]
   }
 }
