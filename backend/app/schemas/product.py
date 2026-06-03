@@ -13,6 +13,7 @@ class ProductBase(BaseModel):
     price: Decimal = Field(..., gt=0, decimal_places=2, examples=[1299.99])
     quantity: int = Field(..., ge=0, examples=[50])
     description: Optional[str] = Field(None, examples=["High-performance laptop"])
+    image_url: Optional[str] = Field(None, max_length=500, examples=["https://example.com/product.jpg"])
 
 
 class ProductCreate(ProductBase):
@@ -26,6 +27,7 @@ class ProductUpdate(BaseModel):
     price: Optional[Decimal] = Field(None, gt=0)
     quantity: Optional[int] = Field(None, ge=0)
     description: Optional[str] = None
+    image_url: Optional[str] = Field(None, max_length=500)
 
 
 class ProductResponse(ProductBase):

@@ -32,14 +32,14 @@ const StatCard = ({
         };
       case 'accent':
         return {
-          bg: 'rgba(139, 92, 246, 0.1)',
-          border: 'rgba(139, 92, 246, 0.25)',
+          bg: 'rgba(245, 197, 66, 0.12)',
+          border: 'rgba(245, 197, 66, 0.30)',
           text: 'var(--accent)',
         };
       default:
         return {
           bg: 'var(--primary-glow)',
-          border: 'rgba(59, 130, 246, 0.25)',
+          border: 'rgba(46, 197, 192, 0.30)',
           text: 'var(--primary)',
         };
     }

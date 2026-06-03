@@ -99,10 +99,32 @@ Ensure you have a PostgreSQL server running locally, create a database named `in
    ```env
    DATABASE_URL=postgresql+asyncpg://postgres:postgrespassword@localhost:5432/inventory_db
    ```
-5. Run the FastAPI development server:
+5. **Run database migrations** (required before first run and after any schema changes):
+   ```bash
+   alembic upgrade head
+   ```
+   > **Note:** The `alembic/versions/` directory contains all migrations. If you are setting up a fresh database, this step creates all tables including the `image_url` column on `products`. If you skip this step and rely on `metadata.create_all()` alone on an existing database, new columns added via migrations (e.g. `image_url`) will be missing and the API will error.
+
+6. Run the FastAPI development server:
    ```bash
    uvicorn app.main:app --reload
    ```
+
+#### Running migrations after pulling new changes
+Any time a new migration file appears in `alembic/versions/`, run:
+```bash
+cd backend
+alembic upgrade head
+```
+To generate a migration after changing a model:
+```bash
+alembic revision --autogenerate -m "describe the change"
+alembic upgrade head
+```
+To roll back one migration:
+```bash
+alembic downgrade -1
+```
 
 ### 3. Frontend Setup
 1. Navigate to the frontend directory:

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -9,12 +9,15 @@ import {
   ChevronRight,
   Sparkles,
   LogOut,
+  Settings,
 } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
+import useTranslation from '@/hooks/useTranslation';
 
-const Sidebar = ({ collapsed, setCollapsed }) => {
+const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
   const navigate = useNavigate();
   const { username, logout } = useAuthStore();
+  const { t } = useTranslation();
 
   const handleLogout = () => {
     logout();
@@ -22,86 +25,112 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
   };
 
   const navItems = [
-    { name: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-    { name: 'Products', path: '/products', icon: Package },
-    { name: 'Customers', path: '/customers', icon: Users },
-    { name: 'Orders', path: '/orders', icon: ShoppingCart },
+    { key: 'dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { key: 'products',  path: '/products',  icon: Package },
+    { key: 'customers', path: '/customers', icon: Users },
+    { key: 'orders',    path: '/orders',    icon: ShoppingCart },
+    { key: 'settings',  path: '/settings',  icon: Settings },
   ];
 
   return (
     <aside
+      className={`sidebar-desktop ${mobileOpen ? 'sidebar-mobile-open' : ''}`}
       style={{
         width: collapsed ? '80px' : 'var(--sidebar-width)',
         height: '100vh',
         position: 'fixed',
         top: 0,
         left: 0,
-        backgroundColor: 'var(--bg-secondary)',
-        borderRight: '1px solid var(--border-color)',
+        background: 'var(--sidebar-bg)',
         display: 'flex',
         flexDirection: 'column',
         transition: 'width var(--transition-slow)',
         zIndex: 100,
         overflow: 'hidden',
+        boxShadow: '4px 0 24px rgba(46,197,192,0.18)',
       }}
     >
-      {/* Brand/Logo Area */}
+      {/* Brand */}
       <div
         style={{
           height: 'var(--header-height)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: collapsed ? 'center' : 'space-between',
-          padding: '0 1.5rem',
-          borderBottom: '1px solid var(--border-color)',
+          padding: '0 1.25rem',
+          borderBottom: '1px solid var(--sidebar-border)',
           flexShrink: 0,
         }}
       >
         {!collapsed && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Sparkles size={20} style={{ color: 'var(--primary)' }} />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.6rem' }}>
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '9px',
+                background: 'rgba(255,255,255,0.25)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Sparkles size={18} style={{ color: '#fff' }} />
+            </div>
             <span
               style={{
-                fontWeight: 700,
-                fontSize: '1.1rem',
+                fontWeight: 800,
+                fontSize: '1.05rem',
+                color: '#ffffff',
                 letterSpacing: '-0.02em',
-                background: 'var(--gradient-primary)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
               }}
             >
               InvManager
             </span>
           </div>
         )}
-        {collapsed && <Sparkles size={22} style={{ color: 'var(--primary)' }} />}
+        {collapsed && (
+          <div
+            style={{
+              width: '34px',
+              height: '34px',
+              borderRadius: '9px',
+              background: 'rgba(255,255,255,0.22)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Sparkles size={18} style={{ color: '#fff' }} />
+          </div>
+        )}
 
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="btn-icon"
           style={{
             marginLeft: collapsed ? '0' : 'auto',
-            padding: '0.25rem',
+            padding: '0.3rem',
             borderRadius: 'var(--radius-sm)',
-            border: '1px solid var(--border-color)',
-            backgroundColor: 'var(--bg-tertiary)',
-            color: 'var(--text-secondary)',
+            border: '1px solid var(--sidebar-border)',
+            background: 'var(--sidebar-hover-bg)',
+            color: 'rgba(255,255,255,0.85)',
             display: 'flex',
             alignItems: 'center',
+            cursor: 'pointer',
           }}
         >
-          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
         </button>
       </div>
 
-      {/* Navigation Links */}
+      {/* Navigation */}
       <nav
         style={{
           flexGrow: 1,
-          padding: '1.5rem 0.75rem',
+          padding: '1.25rem 0.75rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.35rem',
+          gap: '0.3rem',
           overflowY: 'auto',
         }}
       >
@@ -109,36 +138,36 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
           <NavLink
             key={item.path}
             to={item.path}
+            title={collapsed ? t(item.key) : ''}
             style={({ isActive }) => ({
               display: 'flex',
               alignItems: 'center',
-              gap: '1rem',
-              padding: '0.75rem 1rem',
+              gap: '0.9rem',
+              padding: '0.7rem 1rem',
               borderRadius: 'var(--radius-md)',
-              color: isActive ? 'var(--text-primary)' : 'var(--text-secondary)',
-              backgroundColor: isActive ? 'var(--primary-glow)' : 'transparent',
-              border: isActive ? '1px solid rgba(59, 130, 246, 0.2)' : '1px solid transparent',
               textDecoration: 'none',
-              fontSize: '0.95rem',
+              fontSize: '0.92rem',
               fontWeight: isActive ? 600 : 500,
-              transition: 'all var(--transition-fast)',
               justifyContent: collapsed ? 'center' : 'flex-start',
+              transition: 'all var(--transition-fast)',
+              color: isActive ? 'var(--sidebar-active-text)' : 'var(--sidebar-text)',
+              backgroundColor: isActive ? 'var(--sidebar-active-bg)' : 'transparent',
+              boxShadow: isActive ? '0 2px 12px rgba(0,0,0,0.12)' : 'none',
             })}
-            title={collapsed ? item.name : ''}
           >
             {({ isActive }) => {
               const Icon = item.icon;
               return (
                 <>
                   <Icon
-                    size={20}
+                    size={19}
                     style={{
-                      color: isActive ? 'var(--primary)' : 'var(--text-muted)',
-                      transition: 'color var(--transition-fast)',
+                      color: isActive ? 'var(--sidebar-active-text)' : 'var(--sidebar-icon-muted)',
                       flexShrink: 0,
+                      transition: 'color var(--transition-fast)',
                     }}
                   />
-                  {!collapsed && <span>{item.name}</span>}
+                  {!collapsed && <span>{t(item.key)}</span>}
                 </>
               );
             }}
@@ -146,55 +175,71 @@ const Sidebar = ({ collapsed, setCollapsed }) => {
         ))}
       </nav>
 
-      {/* Footer / User info + logout */}
+      {/* Footer */}
       <div
         style={{
-          padding: '1rem',
-          borderTop: '1px solid var(--border-color)',
+          padding: '0.875rem 1rem',
+          borderTop: '1px solid var(--sidebar-border)',
           display: 'flex',
           alignItems: 'center',
           gap: '0.75rem',
-          backgroundColor: 'rgba(20, 26, 41, 0.3)',
+          background: 'var(--sidebar-footer-bg)',
+          flexShrink: 0,
         }}
       >
         <div
           style={{
-            width: '36px',
-            height: '36px',
+            width: '34px',
+            height: '34px',
             borderRadius: '50%',
-            background: 'var(--gradient-primary)',
+            background: 'rgba(255,255,255,0.3)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: 700,
-            fontSize: '0.9rem',
+            fontSize: '0.88rem',
             color: 'white',
             flexShrink: 0,
+            border: '2px solid rgba(255,255,255,0.5)',
           }}
         >
           {username ? username[0].toUpperCase() : 'U'}
         </div>
+
         {!collapsed && (
-          <div style={{ overflow: 'hidden', flex: 1 }}>
-            <div style={{ fontSize: '0.85rem', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          <div style={{ flex: 1, overflow: 'hidden' }}>
+            <div
+              style={{
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                color: 'rgba(255,255,255,0.92)',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
               {username ?? 'User'}
             </div>
           </div>
         )}
+
         <button
           onClick={handleLogout}
-          title="Sign out"
+          title={t('signOut')}
           style={{
             background: 'none',
             border: 'none',
-            color: 'var(--text-muted)',
+            color: 'rgba(255,255,255,0.7)',
             cursor: 'pointer',
             display: 'flex',
             alignItems: 'center',
             padding: '4px',
             borderRadius: 'var(--radius-sm)',
             flexShrink: 0,
+            transition: 'color var(--transition-fast)',
           }}
+          onMouseEnter={(e) => (e.currentTarget.style.color = '#fff')}
+          onMouseLeave={(e) => (e.currentTarget.style.color = 'rgba(255,255,255,0.7)')}
         >
           <LogOut size={16} />
         </button>

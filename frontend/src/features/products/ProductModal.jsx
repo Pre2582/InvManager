@@ -10,6 +10,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product = null }) => {
     price: '',
     quantity: '',
     description: '',
+    image_url: '',
   });
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -22,25 +23,17 @@ const ProductModal = ({ isOpen, onClose, onSave, product = null }) => {
         price: product.price || '',
         quantity: product.quantity || '',
         description: product.description || '',
+        image_url: product.image_url || '',
       });
     } else {
-      setFormData({
-        name: '',
-        sku: '',
-        price: '',
-        quantity: '',
-        description: '',
-      });
+      setFormData({ name: '', sku: '', price: '', quantity: '', description: '', image_url: '' });
     }
     setError(null);
   }, [product, isOpen]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -59,6 +52,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product = null }) => {
         ...formData,
         price: parseFloat(formData.price),
         quantity: parseInt(formData.quantity, 10),
+        image_url: formData.image_url.trim() || null,
       });
       onClose();
     } catch (err) {
@@ -85,7 +79,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product = null }) => {
       onClose={onClose}
       title={product ? 'Edit Product' : 'Add New Product'}
       footer={footer}
-      maxWidth="500px"
+      maxWidth="520px"
     >
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
         {error && (
@@ -104,9 +98,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product = null }) => {
         )}
 
         <div className="form-group">
-          <label className="form-label" htmlFor="product-name">
-            Product Name *
-          </label>
+          <label className="form-label" htmlFor="product-name">Product Name *</label>
           <input
             id="product-name"
             name="name"
@@ -122,9 +114,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product = null }) => {
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
           <div className="form-group">
-            <label className="form-label" htmlFor="product-sku">
-              SKU *
-            </label>
+            <label className="form-label" htmlFor="product-sku">SKU *</label>
             <input
               id="product-sku"
               name="sku"
@@ -134,14 +124,11 @@ const ProductModal = ({ isOpen, onClose, onSave, product = null }) => {
               value={formData.sku}
               onChange={handleChange}
               required
-              disabled={loading || !!product} // Prevent editing SKU after creation to ensure uniqueness integrity
+              disabled={loading || !!product}
             />
           </div>
-
           <div className="form-group">
-            <label className="form-label" htmlFor="product-price">
-              Price (USD) *
-            </label>
+            <label className="form-label" htmlFor="product-price">Price (USD) *</label>
             <input
               id="product-price"
               name="price"
@@ -159,9 +146,7 @@ const ProductModal = ({ isOpen, onClose, onSave, product = null }) => {
         </div>
 
         <div className="form-group">
-          <label className="form-label" htmlFor="product-quantity">
-            Stock Quantity *
-          </label>
+          <label className="form-label" htmlFor="product-quantity">Stock Quantity *</label>
           <input
             id="product-quantity"
             name="quantity"
@@ -177,9 +162,33 @@ const ProductModal = ({ isOpen, onClose, onSave, product = null }) => {
         </div>
 
         <div className="form-group">
-          <label className="form-label" htmlFor="product-description">
-            Description
+          <label className="form-label" htmlFor="product-image-url">
+            Image URL
           </label>
+          <input
+            id="product-image-url"
+            name="image_url"
+            type="url"
+            className="form-input"
+            placeholder="https://example.com/image.jpg"
+            value={formData.image_url}
+            onChange={handleChange}
+            disabled={loading}
+          />
+          {formData.image_url && (
+            <div style={{ marginTop: '0.5rem', borderRadius: 'var(--radius-sm)', overflow: 'hidden', height: '80px', background: 'var(--bg-tertiary)' }}>
+              <img
+                src={formData.image_url}
+                alt="Preview"
+                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                onError={(e) => { e.target.style.display = 'none'; }}
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="form-group">
+          <label className="form-label" htmlFor="product-description">Description</label>
           <textarea
             id="product-description"
             name="description"

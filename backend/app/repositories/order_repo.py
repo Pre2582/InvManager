@@ -60,3 +60,29 @@ class OrderRepository(BaseRepository[Order]):
             {"since": since},
         )
         return [{"date": str(row.date), "count": row.count} for row in result]
+
+    async def get_total_revenue(self) -> float:
+        result = await self.session.execute(
+            text("SELECT COALESCE(SUM(total_amount), 0)::float AS revenue FROM orders WHERE status != 'CANCELLED'")
+        )
+        row = result.fetchone()
+        return float(row.revenue) if row else 0.0
+
+    async def get_orders_by_status(self) -> dict:
+        result = await self.session.execute(
+            text("SELECT status::text, COUNT(*)::int AS count FROM orders GROUP BY status")
+        )
+        counts = {"pending": 0, "confirmed": 0, "cancelled": 0}
+        for row in result:
+            # DB stores uppercase names (PENDING/CONFIRMED/CANCELLED); normalise to lowercase
+            counts[str(row.status).lower()] = row.count
+        return counts
+
+    async def get_recent_orders(self, limit: int = 5):
+        result = await self.session.execute(
+            select(Order)
+            .options(selectinload(Order.customer))
+            .order_by(Order.created_at.desc())
+            .limit(limit)
+        )
+        return list(result.scalars().all())

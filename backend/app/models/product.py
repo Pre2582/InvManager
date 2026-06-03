@@ -25,6 +25,7 @@ class Product(Base, TimestampMixin):
     price: Mapped[Decimal] = mapped_column(Numeric(10, 2), nullable=False)
     quantity: Mapped[int] = mapped_column(Integer, nullable=False, default=0)
     description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    image_url: Mapped[Optional[str]] = mapped_column(String(500), nullable=True)
 
     # Relationships
     order_items: Mapped[List["OrderItem"]] = relationship("OrderItem", back_populates="product")

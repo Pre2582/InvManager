@@ -40,7 +40,7 @@ const Login = () => {
 
   return (
     <div style={styles.page}>
-      {/* Ambient glow orbs */}
+      {/* Teal ambient orbs */}
       <div style={styles.orb1} />
       <div style={styles.orb2} />
 
@@ -113,13 +113,11 @@ const Login = () => {
             disabled={loading}
             style={{
               ...styles.submitBtn,
-              opacity: loading ? 0.7 : 1,
+              opacity: loading ? 0.75 : 1,
               cursor: loading ? 'not-allowed' : 'pointer',
             }}
           >
-            {loading ? (
-              <span style={styles.spinner} />
-            ) : null}
+            {loading && <span style={styles.spinner} />}
             {loading ? 'Signing in…' : 'Sign In'}
           </button>
         </form>
@@ -135,10 +133,14 @@ const Login = () => {
       <style>{`
         @keyframes orbDrift {
           from { transform: translate(0,0) scale(1); }
-          to   { transform: translate(20px,15px) scale(1.06); }
+          to   { transform: translate(20px, 15px) scale(1.06); }
         }
         @keyframes spin {
           to { transform: rotate(360deg); }
+        }
+        .login-input:focus {
+          border-color: #2ec5c0 !important;
+          box-shadow: 0 0 0 3px rgba(46,197,192,0.18) !important;
         }
       `}</style>
     </div>
@@ -152,30 +154,30 @@ const styles = {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    background: 'var(--bg-primary)',
+    background: 'linear-gradient(135deg, #d8f5f3 0%, #eaf8f7 50%, #c8f0ed 100%)',
     position: 'relative',
     overflow: 'hidden',
   },
   orb1: {
     position: 'absolute',
-    top: '-120px',
-    left: '-100px',
-    width: '500px',
-    height: '500px',
+    top: '-140px',
+    left: '-120px',
+    width: '520px',
+    height: '520px',
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(59,130,246,0.16) 0%, transparent 70%)',
+    background: 'radial-gradient(circle, rgba(46,197,192,0.22) 0%, transparent 70%)',
     filter: 'blur(60px)',
     animation: 'orbDrift 9s ease-in-out infinite alternate',
     pointerEvents: 'none',
   },
   orb2: {
     position: 'absolute',
-    bottom: '-80px',
-    right: '-80px',
-    width: '420px',
-    height: '420px',
+    bottom: '-100px',
+    right: '-100px',
+    width: '440px',
+    height: '440px',
     borderRadius: '50%',
-    background: 'radial-gradient(circle, rgba(139,92,246,0.14) 0%, transparent 70%)',
+    background: 'radial-gradient(circle, rgba(245,197,66,0.18) 0%, transparent 70%)',
     filter: 'blur(60px)',
     animation: 'orbDrift 11s ease-in-out infinite alternate-reverse',
     pointerEvents: 'none',
@@ -183,13 +185,11 @@ const styles = {
   card: {
     width: '100%',
     maxWidth: '420px',
-    background: 'rgba(13, 17, 27, 0.88)',
-    backdropFilter: 'blur(20px)',
-    WebkitBackdropFilter: 'blur(20px)',
-    border: '1px solid rgba(59,130,246,0.2)',
-    borderRadius: 'var(--radius-lg)',
+    background: '#ffffff',
+    border: '1px solid rgba(46,197,192,0.25)',
+    borderRadius: '20px',
     padding: '2.5rem',
-    boxShadow: '0 0 0 1px rgba(59,130,246,0.05), 0 24px 64px rgba(0,0,0,0.6)',
+    boxShadow: '0 20px 60px rgba(46,197,192,0.15), 0 4px 20px rgba(0,0,0,0.06)',
     position: 'relative',
     zIndex: 1,
   },
@@ -203,16 +203,16 @@ const styles = {
     width: '36px',
     height: '36px',
     borderRadius: '10px',
-    background: 'var(--gradient-primary)',
+    background: 'linear-gradient(135deg, #2ec5c0 0%, #1aa8a3 100%)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: '0 0 20px rgba(59,130,246,0.35)',
+    boxShadow: '0 4px 14px rgba(46,197,192,0.4)',
   },
   logoText: {
     fontSize: '1.2rem',
     fontWeight: 800,
-    background: 'var(--gradient-primary)',
+    background: 'linear-gradient(135deg, #2ec5c0 0%, #1aa8a3 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
@@ -221,13 +221,13 @@ const styles = {
   heading: {
     fontSize: '1.6rem',
     fontWeight: 700,
-    color: 'var(--text-primary)',
+    color: '#1a3035',
     marginBottom: '0.4rem',
     letterSpacing: '-0.02em',
   },
   subtext: {
     fontSize: '0.9rem',
-    color: 'var(--text-muted)',
+    color: '#89a8ae',
     marginBottom: '1.75rem',
   },
   form: {
@@ -237,10 +237,10 @@ const styles = {
   },
   errorBanner: {
     padding: '0.75rem 1rem',
-    background: 'var(--danger-glow)',
-    border: '1px solid var(--danger-border)',
-    borderRadius: 'var(--radius-md)',
-    color: 'var(--danger)',
+    background: 'rgba(239,68,68,0.08)',
+    border: '1px solid rgba(239,68,68,0.22)',
+    borderRadius: '10px',
+    color: '#ef4444',
     fontSize: '0.875rem',
   },
   field: {
@@ -251,17 +251,17 @@ const styles = {
   label: {
     fontSize: '0.8rem',
     fontWeight: 600,
-    color: 'var(--text-secondary)',
+    color: '#4a6a6f',
     textTransform: 'uppercase',
     letterSpacing: '0.06em',
   },
   input: {
     width: '100%',
-    background: 'var(--bg-secondary)',
-    border: '1px solid var(--border-color)',
-    borderRadius: 'var(--radius-md)',
+    background: '#f4fcfb',
+    border: '1px solid #cce9e7',
+    borderRadius: '10px',
     padding: '0.75rem 1rem',
-    color: 'var(--text-primary)',
+    color: '#1a3035',
     fontSize: '0.95rem',
     fontFamily: 'inherit',
     outline: 'none',
@@ -275,7 +275,7 @@ const styles = {
     transform: 'translateY(-50%)',
     background: 'none',
     border: 'none',
-    color: 'var(--text-muted)',
+    color: '#89a8ae',
     display: 'flex',
     alignItems: 'center',
     cursor: 'pointer',
@@ -289,15 +289,15 @@ const styles = {
     width: '100%',
     padding: '0.85rem',
     marginTop: '0.5rem',
-    background: 'var(--gradient-primary)',
+    background: 'linear-gradient(135deg, #2ec5c0 0%, #1aa8a3 100%)',
     color: '#fff',
     border: 'none',
-    borderRadius: 'var(--radius-md)',
+    borderRadius: '10px',
     fontSize: '1rem',
     fontWeight: 600,
     fontFamily: 'inherit',
     letterSpacing: '0.01em',
-    boxShadow: '0 4px 18px rgba(59,130,246,0.3)',
+    boxShadow: '0 4px 16px rgba(46,197,192,0.38)',
     transition: 'filter 0.15s, box-shadow 0.15s',
   },
   spinner: {
@@ -313,10 +313,10 @@ const styles = {
     marginTop: '1.75rem',
     textAlign: 'center',
     fontSize: '0.9rem',
-    color: 'var(--text-secondary)',
+    color: '#4a6a6f',
   },
   link: {
-    color: 'var(--primary)',
+    color: '#2ec5c0',
     fontWeight: 600,
     textDecoration: 'none',
   },

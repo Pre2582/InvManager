@@ -10,7 +10,10 @@
       "Bash(python -c \"import uvicorn; print\\('uvicorn ok'\\)\")",
       "Bash(python -c \"import asyncpg; print\\('asyncpg ok'\\)\")",
       "Bash(pip install *)",
-      "Bash(psql *)"
+      "Bash(psql *)",
+      "Bash(Get-ChildItem *)",
+      "PowerShell(Get-Command *)",
+      "PowerShell(& \"D:\\\\PREM\\\\Projects\\\\Assesment\\\\backend\\\\venv\\\\Scripts\\\\alembic.exe\" --version 2>&1)"
     ]
   }
 }
