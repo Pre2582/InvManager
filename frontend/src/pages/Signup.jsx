@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Eye, EyeOff, Sparkles } from 'lucide-react';
+import { Eye, EyeOff, Sparkles, Wand2 } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
+import { autoFillSignup } from '@/utils/autoFill';
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -19,6 +20,11 @@ const Signup = () => {
 
   const handleChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
+
+  const handleAutoFill = () => {
+    setForm(autoFillSignup());
+    setError(null);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,6 +75,12 @@ const Signup = () => {
         <p style={styles.subtext}>Start managing your inventory today</p>
 
         <form onSubmit={handleSubmit} style={styles.form}>
+          {/* Autofill button */}
+          <button type="button" onClick={handleAutoFill} disabled={loading} style={styles.autofillBtn}>
+            <Wand2 size={13} />
+            Autofill Demo Data
+          </button>
+
           {error && (
             <motion.div
               style={styles.errorBanner}
@@ -324,6 +336,21 @@ const styles = {
     borderTopColor: '#fff',
     borderRadius: '50%',
     animation: 'spin 0.7s linear infinite',
+  },
+  autofillBtn: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.4rem',
+    padding: '0.38rem 0.9rem',
+    borderRadius: '8px',
+    border: '1.5px dashed #2ec5c0',
+    background: 'rgba(46,197,192,0.1)',
+    color: '#2ec5c0',
+    fontSize: '0.82rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    width: 'fit-content',
   },
   switchText: {
     marginTop: '1.75rem',

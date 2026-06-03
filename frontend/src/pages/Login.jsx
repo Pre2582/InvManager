@@ -122,6 +122,28 @@ const Login = () => {
           </button>
         </form>
 
+        {/* Test credential hint */}
+        <div style={styles.credBox}>
+          <div style={styles.credLabel}>Test Credentials</div>
+          <div style={styles.credRow}>
+            <span style={styles.credItem}>
+              <span style={styles.credKey}>Username</span>
+              <code style={styles.credVal}>testUser</code>
+            </span>
+            <span style={styles.credItem}>
+              <span style={styles.credKey}>Password</span>
+              <code style={styles.credVal}>Test1234</code>
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={() => { setForm({ username: 'testUser', password: 'Test1234' }); setError(null); }}
+            style={styles.credBtn}
+          >
+            Use these credentials →
+          </button>
+        </div>
+
         <p style={styles.switchText}>
           Don&apos;t have an account?{' '}
           <Link to="/signup" style={styles.link}>
@@ -309,8 +331,59 @@ const styles = {
     borderRadius: '50%',
     animation: 'spin 0.7s linear infinite',
   },
+  credBox: {
+    marginTop: '1.25rem',
+    padding: '0.9rem 1rem',
+    background: 'rgba(46,197,192,0.07)',
+    border: '1px solid rgba(46,197,192,0.25)',
+    borderRadius: '12px',
+  },
+  credLabel: {
+    fontSize: '0.72rem',
+    fontWeight: 700,
+    color: '#89a8ae',
+    textTransform: 'uppercase',
+    letterSpacing: '0.07em',
+    marginBottom: '0.55rem',
+  },
+  credRow: {
+    display: 'flex',
+    gap: '1.5rem',
+    flexWrap: 'wrap',
+    marginBottom: '0.65rem',
+  },
+  credItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '0.4rem',
+  },
+  credKey: {
+    fontSize: '0.8rem',
+    color: '#89a8ae',
+  },
+  credVal: {
+    fontSize: '0.88rem',
+    fontWeight: 700,
+    color: '#2ec5c0',
+    fontFamily: 'monospace',
+    background: 'rgba(46,197,192,0.12)',
+    padding: '0.1rem 0.45rem',
+    borderRadius: '5px',
+  },
+  credBtn: {
+    background: 'none',
+    border: 'none',
+    color: '#2ec5c0',
+    fontSize: '0.82rem',
+    fontWeight: 600,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    padding: 0,
+    textDecoration: 'underline',
+    textUnderlineOffset: '3px',
+  },
   switchText: {
-    marginTop: '1.75rem',
+    marginTop: '1.25rem',
     textAlign: 'center',
     fontSize: '0.9rem',
     color: '#4a6a6f',

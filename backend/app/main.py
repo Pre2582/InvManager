@@ -7,21 +7,33 @@ from fastapi.responses import JSONResponse
 
 from app.api.v1 import auth, customers, dashboard, orders, products
 from app.core.config import settings
-from app.core.database import engine
+from app.core.database import engine, AsyncSessionLocal
 from app.exceptions.handlers import AppException, app_exception_handler
 
 # Import all models so SQLAlchemy registers them before create_all
 import app.models  # noqa: F401
 from app.core.database import Base
+from app.seed import run_seed
 
 
 # ─── Lifespan ────────────────────────────────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Create all DB tables on startup; dispose engine on shutdown."""
+    """On startup: create tables → run seed data. On shutdown: dispose engine."""
+    # 1. Ensure all tables exist
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+    # 2. Seed default user + demo products (idempotent)
+    async with AsyncSessionLocal() as session:
+        try:
+            await run_seed(session)
+            await session.commit()
+        except Exception:
+            await session.rollback()
+            raise
+
     yield
     await engine.dispose()
 

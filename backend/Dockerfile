@@ -25,5 +25,6 @@ COPY . .
 # ─── Production Stage ─────────────────────────────────────────────────────────
 EXPOSE 8000
 
-# Railway injects $PORT; fall back to 8000 for local Docker use
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 2"]
+# 1. Apply any pending Alembic migrations
+# 2. Start the API server (lifespan hook runs seed on first boot)
+CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 2"]
