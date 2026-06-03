@@ -26,6 +26,14 @@ SEED_USER = {
     "username": "testUser",
     "email":    "testuser@inventrack.com",
     "password": "Test1234",
+    "is_admin": False,
+}
+
+SEED_ADMIN = {
+    "username": "admin",
+    "email":    "admin@inventrack.com",
+    "password": "Admin@1234",
+    "is_admin": True,
 }
 
 # ── Demo product catalogue ────────────────────────────────────────────────────
@@ -156,24 +164,34 @@ SEED_PRODUCTS = [
 
 # ── Seed functions ────────────────────────────────────────────────────────────
 
-async def _seed_user(session: AsyncSession) -> None:
-    """Create the default testUser account if it doesn't already exist."""
-    existing = await session.scalar(
-        select(User).where(User.username == SEED_USER["username"])
-    )
+async def _seed_one_user(session: AsyncSession, spec: dict) -> None:
+    """Create a user if they don't exist, or promote them to admin if the spec requires it."""
+    existing = await session.scalar(select(User).where(User.username == spec["username"]))
     if existing:
-        log.info("seed: user '%s' already exists — skipped", SEED_USER["username"])
+        # Promote to admin if the spec says so and they aren't already
+        if spec.get("is_admin") and not existing.is_admin:
+            existing.is_admin = True
+            session.add(existing)
+            await session.flush()
+            log.info("seed: promoted user '%s' to admin", spec["username"])
+        else:
+            log.info("seed: user '%s' already exists — skipped", spec["username"])
         return
-
-    user = User(
+    session.add(User(
         id=uuid.uuid4(),
-        username=SEED_USER["username"],
-        email=SEED_USER["email"],
-        hashed_password=hash_password(SEED_USER["password"]),
-    )
-    session.add(user)
+        username=spec["username"],
+        email=spec["email"],
+        hashed_password=hash_password(spec["password"]),
+        is_admin=spec.get("is_admin", False),
+    ))
     await session.flush()
-    log.info("seed: created user '%s'", SEED_USER["username"])
+    log.info("seed: created user '%s' (is_admin=%s)", spec["username"], spec.get("is_admin", False))
+
+
+async def _seed_user(session: AsyncSession) -> None:
+    """Create the default user accounts if they don't already exist."""
+    await _seed_one_user(session, SEED_USER)
+    await _seed_one_user(session, SEED_ADMIN)
 
 
 async def _seed_products(session: AsyncSession) -> None:

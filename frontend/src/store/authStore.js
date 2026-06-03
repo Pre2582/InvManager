@@ -22,14 +22,15 @@ const validToken = storedToken && !isExpired(storedToken) ? storedToken : null;
 if (storedToken && !validToken) localStorage.removeItem(TOKEN_KEY);
 
 const useAuthStore = create((set) => ({
-  token: validToken,
-  username: validToken ? (parseToken(validToken)?.sub ?? null) : null,
+  token:    validToken,
+  username: validToken ? (parseToken(validToken)?.sub     ?? null)  : null,
+  isAdmin:  validToken ? (parseToken(validToken)?.is_admin ?? false) : false,
 
   login: async (username, password) => {
     const { access_token } = await authApi.login({ username, password });
     localStorage.setItem(TOKEN_KEY, access_token);
     const payload = parseToken(access_token);
-    set({ token: access_token, username: payload?.sub ?? username });
+    set({ token: access_token, username: payload?.sub ?? username, isAdmin: payload?.is_admin ?? false });
   },
 
   signup: async (username, email, password) => {
@@ -37,12 +38,12 @@ const useAuthStore = create((set) => ({
     const { access_token } = await authApi.login({ username, password });
     localStorage.setItem(TOKEN_KEY, access_token);
     const payload = parseToken(access_token);
-    set({ token: access_token, username: payload?.sub ?? username });
+    set({ token: access_token, username: payload?.sub ?? username, isAdmin: payload?.is_admin ?? false });
   },
 
   logout: () => {
     localStorage.removeItem(TOKEN_KEY);
-    set({ token: null, username: null });
+    set({ token: null, username: null, isAdmin: false });
   },
 }));
 

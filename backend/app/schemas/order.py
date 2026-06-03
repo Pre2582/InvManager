@@ -36,6 +36,11 @@ class OrderCreate(BaseModel):
     notes: Optional[str] = Field(None, examples=["Rush delivery please"])
 
 
+class OrderStatusUpdate(BaseModel):
+    """Admin-only: update the status of an existing order."""
+    status: OrderStatus
+
+
 class OrderResponse(BaseModel):
     id: UUID
     customer_id: UUID

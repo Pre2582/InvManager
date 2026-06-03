@@ -101,3 +101,13 @@ class OrderService:
 
     async def count(self) -> int:
         return await self._order_repo.count()
+
+    async def update_order_status(self, order_id: UUID, new_status) -> "Order":
+        """Admin-only: change the status label of an order without touching stock."""
+        order = await self._order_repo.get_by_id_with_details(order_id)
+        if not order:
+            raise NotFoundError(f"Order '{order_id}' not found.")
+        order.status = new_status
+        self._session.add(order)
+        await self._session.flush()
+        return await self._order_repo.get_by_id_with_details(order_id)

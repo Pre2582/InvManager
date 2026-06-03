@@ -25,9 +25,11 @@ import OrderModal from '@/features/orders/OrderModal';
 import OrderDetailModal from '@/features/orders/OrderDetailModal';
 import { formatCurrency, formatDateTime, shortId, statusVariant } from '@/utils/formatters';
 import useToast from '@/hooks/useToast';
+import useAuthStore from '@/store/authStore';
 
 const Orders = () => {
   const { refreshKey } = useOutletContext() || {};
+  const { isAdmin } = useAuthStore();
   const { orders, loading: ordersLoading, fetchOrders, createOrder, cancelOrder } = useOrders();
   const { customers, fetchCustomers } = useCustomers();
   const { products, fetchProducts } = useProducts();
@@ -185,6 +187,19 @@ const Orders = () => {
 
   return (
     <div className="page-container">
+      {/* Admin banner */}
+      {isAdmin && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1.25rem', borderRadius: 'var(--radius-md)', background: 'linear-gradient(135deg, rgba(46,197,192,0.12) 0%, rgba(46,197,192,0.04) 100%)', border: '1px solid rgba(46,197,192,0.3)' }}>
+          <span style={{ fontSize: '1rem' }}>🛡️</span>
+          <div>
+            <span style={{ fontWeight: 700, color: 'var(--primary)', fontSize: '0.9rem' }}>Admin Mode Active</span>
+            <span style={{ color: 'var(--text-muted)', fontSize: '0.82rem', marginLeft: '0.5rem' }}>
+              Open any order to change its status (Pending → Confirmed → Delivered).
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Search / Filters / New Order */}
       <div className="glass-card" style={{ padding: '1.25rem 1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
@@ -203,6 +218,7 @@ const Orders = () => {
               <option value="all">All Statuses</option>
               <option value="pending">Pending</option>
               <option value="confirmed">Confirmed</option>
+              <option value="delivered">Delivered</option>
               <option value="cancelled">Cancelled</option>
             </select>
           </SearchBar>
@@ -391,6 +407,7 @@ const Orders = () => {
         onClose={() => { setIsDetailModalOpen(false); setSelectedOrder(null); }}
         order={selectedOrder}
         onCancelOrder={handleCancelOrder}
+        onStatusUpdated={() => { fetchOrders(); fetchProducts(); }}
       />
     </div>
   );

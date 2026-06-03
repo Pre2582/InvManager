@@ -57,8 +57,8 @@ async def login(credentials: UserLogin, db: AsyncSession = Depends(get_db)) -> d
     if not user or not verify_password(credentials.password, user.hashed_password):
         raise UnauthorizedError("Invalid username/email or password.")
 
-    # Generate token
-    token = create_access_token(data={"sub": user.username})
+    # Generate token — include is_admin so the frontend can gate UI without an extra round-trip
+    token = create_access_token(data={"sub": user.username, "is_admin": user.is_admin})
     return {
         "access_token": token,
         "token_type": "bearer"

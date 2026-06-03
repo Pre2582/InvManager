@@ -50,6 +50,13 @@ class UnauthorizedError(AppException):
         super().__init__(message, 401)
 
 
+class ForbiddenError(AppException):
+    """Authenticated but not authorised (e.g. non-admin accessing admin route)."""
+
+    def __init__(self, message: str = "You do not have permission to perform this action.") -> None:
+        super().__init__(message, 403)
+
+
 # ─── FastAPI Handlers ────────────────────────────────────────────────────────
 
 

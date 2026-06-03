@@ -16,7 +16,7 @@ import useTranslation from '@/hooks/useTranslation';
 
 const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
   const navigate = useNavigate();
-  const { username, logout } = useAuthStore();
+  const { username, logout, isAdmin } = useAuthStore();
   const { t } = useTranslation();
 
   const handleLogout = () => {
@@ -208,18 +208,14 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
 
         {!collapsed && (
           <div style={{ flex: 1, overflow: 'hidden' }}>
-            <div
-              style={{
-                fontSize: '0.85rem',
-                fontWeight: 600,
-                color: 'rgba(255,255,255,0.92)',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
+            <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'rgba(255,255,255,0.92)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {username ?? 'User'}
             </div>
+            {isAdmin && (
+              <div style={{ fontSize: '0.68rem', fontWeight: 700, color: 'rgba(255,255,255,0.7)', letterSpacing: '0.05em', marginTop: '0.1rem', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                🛡️ ADMIN
+              </div>
+            )}
           </div>
         )}
 

@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.core.database import AsyncSessionLocal
-from app.exceptions.handlers import UnauthorizedError
+from app.exceptions.handlers import UnauthorizedError, ForbiddenError
 from app.models.user import User
 from app.repositories.user_repo import UserRepository
 
@@ -99,3 +99,10 @@ async def get_current_user(
         raise UnauthorizedError("User associated with this token does not exist.")
 
     return user
+
+
+async def get_admin_user(current_user: User = Depends(get_current_user)) -> User:
+    """Dependency that ensures the caller is an admin user."""
+    if not current_user.is_admin:
+        raise ForbiddenError("Admin access required to perform this action.")
+    return current_user

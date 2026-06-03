@@ -54,9 +54,10 @@ export const capitalise = (str) =>
  */
 export const statusVariant = (status) => {
   const map = {
-    pending: 'warning',
-    confirmed: 'success',
+    pending:   'warning',
+    confirmed: 'primary',
+    delivered: 'success',
     cancelled: 'danger',
   };
-  return map[status] || 'info';
+  return map[status?.toLowerCase()] || 'primary';
 };

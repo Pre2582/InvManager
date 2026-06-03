@@ -5,8 +5,9 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.deps import get_db, get_current_user
-from app.schemas.order import OrderCreate, OrderResponse
+from app.core.deps import get_db, get_current_user, get_admin_user
+from app.models.user import User
+from app.schemas.order import OrderCreate, OrderResponse, OrderStatusUpdate
 from app.services.order_service import OrderService
 
 router = APIRouter(prefix="/orders", tags=["Orders"], dependencies=[Depends(get_current_user)])
@@ -17,13 +18,7 @@ async def create_order(
     payload: OrderCreate,
     db: AsyncSession = Depends(get_db),
 ) -> OrderResponse:
-    """
-    Create a new order.
-    - Validates customer and product existence.
-    - Checks sufficient stock for every line item.
-    - Atomically deducts stock and persists the order.
-    - Auto-calculates total_amount.
-    """
+    """Create a new order, deducting stock atomically."""
     return await OrderService(db).create_order(payload)
 
 
@@ -42,10 +37,24 @@ async def get_order(
     return await OrderService(db).get_order(order_id)
 
 
+@router.patch("/{order_id}/status", response_model=OrderResponse)
+async def update_order_status(
+    order_id: UUID,
+    payload: OrderStatusUpdate,
+    db: AsyncSession = Depends(get_db),
+    _: User = Depends(get_admin_user),
+) -> OrderResponse:
+    """
+    Admin only — update the status of an order.
+    Does NOT adjust stock levels; use DELETE to cancel and restore stock.
+    """
+    return await OrderService(db).update_order_status(order_id, payload.status)
+
+
 @router.delete("/{order_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def cancel_order(
     order_id: UUID,
     db: AsyncSession = Depends(get_db),
 ) -> None:
-    """Cancel/delete an order and restore product stock."""
+    """Cancel an order and restore product stock levels."""
     await OrderService(db).cancel_order(order_id)
