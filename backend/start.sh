@@ -1,11 +1,8 @@
 #!/bin/sh
-# ─── Backend startup script ───────────────────────────────────────────────────
-# 1. Wait for the PostgreSQL database to be reachable
-# 2. Run Alembic migrations
-# 3. Start the Uvicorn server
-#
-# Railway restarts the container on non-zero exit (ON_FAILURE policy),
-# so this script just exits 1 when the DB is unreachable after all retries.
+# 1. Wait for DB
+# 2. If tables exist but no alembic_version: stamp head (DB was pre-created by create_all)
+# 3. Otherwise: run alembic upgrade head
+# 4. Start uvicorn
 
 set -e
 
@@ -20,7 +17,6 @@ import asyncio, asyncpg, os, sys
 
 async def check():
     raw = os.environ.get("DATABASE_URL", "")
-    # normalise to asyncpg-compatible URL
     url = (raw
            .replace("postgresql+asyncpg://", "postgresql://")
            .replace("postgres://", "postgresql://"))
@@ -45,9 +41,46 @@ done
 
 echo "==> Database is ready."
 
-echo "==> Running Alembic migrations..."
-alembic upgrade head
-echo "==> Migrations complete."
+echo "==> Checking migration state..."
+MIGRATION_ACTION=$(python - <<'EOF'
+import asyncio, asyncpg, os, sys
+
+async def check():
+    raw = os.environ.get("DATABASE_URL", "")
+    url = (raw
+           .replace("postgresql+asyncpg://", "postgresql://")
+           .replace("postgres://", "postgresql://"))
+    conn = await asyncpg.connect(url, timeout=5)
+
+    tables_exist = await conn.fetchval(
+        "SELECT COUNT(*) FROM information_schema.tables "
+        "WHERE table_schema='public' AND table_name='users'"
+    )
+    alembic_exists = await conn.fetchval(
+        "SELECT COUNT(*) FROM information_schema.tables "
+        "WHERE table_schema='public' AND table_name='alembic_version'"
+    )
+    await conn.close()
+
+    # Tables exist but no Alembic history = DB was bootstrapped by SQLAlchemy create_all
+    if tables_exist > 0 and alembic_exists == 0:
+        print("stamp")
+    else:
+        print("migrate")
+
+asyncio.run(check())
+EOF
+)
+
+if [ "$MIGRATION_ACTION" = "stamp" ]; then
+    echo "==> DB already initialised (no migration history). Stamping Alembic at head..."
+    alembic stamp head
+    echo "==> Stamp complete."
+else
+    echo "==> Running Alembic migrations..."
+    alembic upgrade head
+    echo "==> Migrations complete."
+fi
 
 echo "==> Starting Uvicorn on port ${PORT:-8000}..."
 exec uvicorn app.main:app \
