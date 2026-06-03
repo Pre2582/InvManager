@@ -1,0 +1,17 @@
+# Railway configuration — frontend (React + Nginx) service.
+# In Railway dashboard → New Service → set Root Directory = "frontend/"
+
+[build]
+builder        = "dockerfile"
+dockerfilePath = "Dockerfile"
+
+# Pass VITE_API_URL (set as a Railway env var) into the Docker build as a build arg.
+# Railway template syntax: ${{VAR_NAME}} references the service's environment variable.
+[build.args]
+VITE_API_URL = "${{VITE_API_URL}}"
+
+[deploy]
+healthcheckPath    = "/"
+healthcheckTimeout = 120
+restartPolicyType  = "on-failure"
+restartPolicyMaxRetries = 5

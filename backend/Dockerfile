@@ -15,16 +15,18 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PIP_NO_CACHE_DIR=1 \
     PIP_DISABLE_PIP_VERSION_CHECK=1
 
-# Install Python deps first (layer cache)
+# Install Python deps first (layer-cache friendly)
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application source
 COPY . .
 
-# ─── Production Stage ─────────────────────────────────────────────────────────
+# Make startup script executable
+RUN chmod +x start.sh
+
+# ─── Production ───────────────────────────────────────────────────────────────
 EXPOSE 8000
 
-# 1. Apply any pending Alembic migrations
-# 2. Start the API server (lifespan hook runs seed on first boot)
-CMD ["sh", "-c", "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 2"]
+# start.sh: waits for DB → runs migrations → starts uvicorn
+CMD ["./start.sh"]

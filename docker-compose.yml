@@ -44,6 +44,8 @@ services:
         - VITE_API_URL=http://localhost:8000
     container_name: inventory_frontend
     restart: always
+    environment:
+      PORT: "80"       # envsubst uses this at container start
     ports:
       - "80:80"
     depends_on:
