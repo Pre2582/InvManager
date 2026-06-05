@@ -476,6 +476,11 @@ p { color: var(--text-secondary); }
 [data-theme="dark"] .table-container { border-color: #1e293b; }
 [data-theme="dark"] .toast { background: #0d111b; border-color: #1e293b; }
 
+/* ── Customer cards dark mode ────────────────────────────────── */
+[data-theme="dark"] .customer-card-contact-icon {
+  background-color: #1e293b !important;
+}
+
 /* ── Responsive ──────────────────────────────────────────────── */
 /* Hamburger — hidden on desktop */
 .hamburger-btn { display: none; }
