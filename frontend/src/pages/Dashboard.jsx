@@ -458,7 +458,7 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.18, duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-          style={{ display: 'flex', flexDirection: 'column', minHeight: 320 }}
+          style={{ display: 'flex', flexDirection: 'column' }}
         >
           {/* Chart header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.25rem' }}>
@@ -487,7 +487,7 @@ const Dashboard = () => {
               <p style={{ fontSize: '0.85rem' }}>No order data yet</p>
             </div>
           ) : (
-            <div style={{ flexGrow: 1, minHeight: 220 }}>
+            <div style={{ height: 240 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData} margin={{ top: 8, right: 4, left: -22, bottom: 0 }}>
                   <defs>
@@ -532,7 +532,7 @@ const Dashboard = () => {
           initial={{ opacity: 0, y: 18 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.24, duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
-          style={{ display: 'flex', flexDirection: 'column', minHeight: 320 }}
+          style={{ display: 'flex', flexDirection: 'column' }}
         >
           <div style={{ marginBottom: '1.1rem' }}>
             <h3 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: 3 }}>{t('ordersByStatus')}</h3>
@@ -549,8 +549,8 @@ const Dashboard = () => {
           ) : (
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexGrow: 1 }}>
               {/* Donut */}
-              <div style={{ width: 190, flexShrink: 0 }}>
-                <ResponsiveContainer width="100%" height={190}>
+              <div style={{ width: 190, height: 210, flexShrink: 0 }}>
+                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
                       data={statusChartData}
