@@ -381,7 +381,12 @@ const Login = () => {
         <motion.div variants={containerVariants} initial="hidden" animate="visible">
 
           {/* Logo */}
-          <motion.div style={styles.logo} variants={itemVariants}>
+          <motion.div
+            style={{ ...styles.logo, cursor: 'pointer' }}
+            variants={itemVariants}
+            onClick={() => navigate('/')}
+            title="Back to home"
+          >
             <motion.div
               style={styles.logoIcon}
               animate={{ boxShadow: ['0 4px 14px rgba(46,197,192,0.4)', '0 4px 28px rgba(46,197,192,0.7)', '0 4px 14px rgba(46,197,192,0.4)'] }}
@@ -395,6 +400,24 @@ const Login = () => {
               </motion.div>
             </motion.div>
             <span style={styles.logoText}>InvenTrack</span>
+          </motion.div>
+
+          {/* Back to home */}
+          <motion.div variants={itemVariants} style={{ marginBottom: '1.25rem' }}>
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              style={{
+                background: 'none', border: 'none', padding: 0,
+                color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500,
+                cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5,
+                fontFamily: 'inherit', transition: 'color 0.15s',
+              }}
+              onMouseEnter={e => e.currentTarget.style.color = 'var(--primary)'}
+              onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+            >
+              ← Back to home
+            </button>
           </motion.div>
 
           {/* Heading */}

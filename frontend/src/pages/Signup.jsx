@@ -191,7 +191,7 @@ const TestAccountsPopup = ({ onClose, onUse }) =>
 // ── Signup Page ───────────────────────────────────────────────────────────────
 const Signup = () => {
   const navigate = useNavigate();
-  const { token, signup } = useAuthStore();
+  const { token, signup, isAdmin } = useAuthStore();
 
   const [form, setForm]         = useState({ username: '', email: '', password: '' });
   const [showPass, setShowPass] = useState(false);
@@ -200,8 +200,8 @@ const Signup = () => {
   const [showHelp, setShowHelp] = useState(false);
 
   useEffect(() => {
-    if (token) navigate('/dashboard', { replace: true });
-  }, [token, navigate]);
+    if (token) navigate(isAdmin ? '/dashboard' : '/home', { replace: true });
+  }, [token, isAdmin, navigate]);
 
   const handleChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -227,7 +227,7 @@ const Signup = () => {
     setError(null);
     try {
       await signup(username.trim(), email.trim().toLowerCase(), password);
-      navigate('/dashboard');
+      navigate('/home');
     } catch (err) {
       setError(err.message || 'Could not create account. Please try again.');
     } finally {
@@ -257,11 +257,33 @@ const Signup = () => {
         </button>
 
         {/* Logo */}
-        <div style={styles.logo}>
+        <div
+          style={{ ...styles.logo, cursor: 'pointer' }}
+          onClick={() => navigate('/')}
+          title="Back to home"
+        >
           <div style={styles.logoIcon}>
             <Sparkles size={18} style={{ color: '#fff' }} />
           </div>
           <span style={styles.logoText}>InvenTrack</span>
+        </div>
+
+        {/* Back to home */}
+        <div style={{ marginBottom: '1.25rem' }}>
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            style={{
+              background: 'none', border: 'none', padding: 0,
+              color: 'var(--text-muted)', fontSize: '0.8rem', fontWeight: 500,
+              cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 5,
+              fontFamily: 'inherit', transition: 'color 0.15s',
+            }}
+            onMouseEnter={e => e.currentTarget.style.color = 'var(--primary)'}
+            onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
+          >
+            ← Back to home
+          </button>
         </div>
 
         <h2 style={styles.heading}>Create account</h2>
