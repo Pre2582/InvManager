@@ -361,94 +361,15 @@ const Orders = () => {
         </div>
       </motion.div>
 
-      {/* ── Stats row ────────────────────────────────────────── */}
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-        <StatCard icon={ShoppingCart} label="Total Orders"  value={orders.length}     color="#2ec5c0" bg="#e0fafa" delay={0.05} />
-        <StatCard icon={Clock}        label="Pending"        value={countBy('pending')}   color="#f59e0b" bg="#fef3c7" delay={0.08} />
-        <StatCard icon={CheckCircle}  label="Delivered"      value={countBy('delivered')} color="#22c55e" bg="#dcfce7" delay={0.11} />
-        <StatCard icon={DollarSign}   label="Total Revenue"  value={formatCurrency(totalRevenue)} color="#6366f1" bg="#ede9fe" delay={0.14} />
-      </div>
-
-      {/* ── Product Catalog ──────────────────────────────────── */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="glass-card"
-        style={{ padding: 0, overflow: 'hidden' }}
-      >
-        <button
-          onClick={() => setCatalogOpen(o => !o)}
-          style={{
-            width: '100%', background: 'none', border: 'none', cursor: 'pointer',
-            padding: '1rem 1.5rem',
-            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-            borderBottom: catalogOpen ? '1px solid var(--border-color)' : 'none',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{
-              width: 34, height: 34, borderRadius: 9,
-              background: 'var(--primary-glow)',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
-              <Package size={16} color="var(--primary)" />
-            </div>
-            <span style={{ fontWeight: 700, fontSize: '0.93rem', color: 'var(--text-primary)' }}>
-              Product Catalog
-            </span>
-            <span style={{
-              fontSize: '0.72rem', color: 'var(--primary)', fontWeight: 700,
-              background: 'var(--primary-glow)', padding: '2px 8px', borderRadius: 50,
-              border: '1px solid rgba(46,197,192,0.25)',
-            }}>
-              {products.length} items
-            </span>
-          </div>
-          {catalogOpen
-            ? <ChevronUp size={16} style={{ color: 'var(--text-muted)' }} />
-            : <ChevronDown size={16} style={{ color: 'var(--text-muted)' }} />}
-        </button>
-
-        <AnimatePresence>
-          {catalogOpen && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 'auto', opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25 }}
-              style={{ overflow: 'hidden' }}
-            >
-              <div style={{ padding: '0.875rem 1.5rem', borderBottom: '1px solid var(--border-color)' }}>
-                <div style={{ position: 'relative', maxWidth: 320 }}>
-                  <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
-                  <input
-                    type="text" className="form-input"
-                    placeholder="Search products by name or SKU…"
-                    value={productSearch}
-                    onChange={e => setProductSearch(e.target.value)}
-                    style={{ paddingLeft: 32, margin: 0 }}
-                  />
-                </div>
-              </div>
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))',
-                gap: '1rem', padding: '1.25rem 1.5rem',
-                maxHeight: '400px', overflowY: 'auto',
-              }}>
-                {catalogProducts.length === 0 ? (
-                  <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                    No products match your search.
-                  </div>
-                ) : catalogProducts.map(p => (
-                  <CatalogCard key={p.id} product={p} onAddToCart={handleAddToCart} onImageClick={setLightboxUrl} getStockBadge={getStockBadge} />
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
+      {/* ── Stats row (admin only) ───────────────────────────── */}
+      {isAdmin && (
+        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <StatCard icon={ShoppingCart} label="Total Orders"  value={orders.length}                color="#2ec5c0" bg="#e0fafa" delay={0.05} />
+          <StatCard icon={Clock}        label="Pending"        value={countBy('pending')}            color="#f59e0b" bg="#fef3c7" delay={0.08} />
+          <StatCard icon={CheckCircle}  label="Delivered"      value={countBy('delivered')}          color="#22c55e" bg="#dcfce7" delay={0.11} />
+          <StatCard icon={DollarSign}   label="Total Revenue"  value={formatCurrency(totalRevenue)}  color="#6366f1" bg="#ede9fe" delay={0.14} />
+        </div>
+      )}
 
       {/* ── Order History ─────────────────────────────────────── */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
@@ -532,7 +453,7 @@ const Orders = () => {
             <p style={{ fontSize: '0.83rem', color: 'var(--text-muted)', maxWidth: 300, margin: '0 auto 1.25rem' }}>
               {searchTerm || statusFilter !== 'all'
                 ? 'Try adjusting your search or clearing the status filter.'
-                : 'Browse the product catalog above to add items to your cart and place an order.'}
+                : 'Browse the product catalog below to add items to your cart and place an order.'}
             </p>
             {(searchTerm || statusFilter !== 'all') ? (
               <Button variant="secondary" onClick={() => { setSearchTerm(''); setStatusFilter('all'); }}>
@@ -575,6 +496,87 @@ const Orders = () => {
           </>
         )}
       </div>
+
+      {/* ── Product Catalog ──────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.1 }}
+        className="glass-card"
+        style={{ padding: 0, overflow: 'hidden' }}
+      >
+        <button
+          onClick={() => setCatalogOpen(o => !o)}
+          style={{
+            width: '100%', background: 'none', border: 'none', cursor: 'pointer',
+            padding: '1rem 1.5rem',
+            display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+            borderBottom: catalogOpen ? '1px solid var(--border-color)' : 'none',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+            <div style={{
+              width: 34, height: 34, borderRadius: 9,
+              background: 'var(--primary-glow)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <Package size={16} color="var(--primary)" />
+            </div>
+            <span style={{ fontWeight: 700, fontSize: '0.93rem', color: 'var(--text-primary)' }}>
+              Product Catalog
+            </span>
+            <span style={{
+              fontSize: '0.72rem', color: 'var(--primary)', fontWeight: 700,
+              background: 'var(--primary-glow)', padding: '2px 8px', borderRadius: 50,
+              border: '1px solid rgba(46,197,192,0.25)',
+            }}>
+              {products.length} items
+            </span>
+          </div>
+          {catalogOpen
+            ? <ChevronUp size={16} style={{ color: 'var(--text-muted)' }} />
+            : <ChevronDown size={16} style={{ color: 'var(--text-muted)' }} />}
+        </button>
+
+        <AnimatePresence>
+          {catalogOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              style={{ overflow: 'hidden' }}
+            >
+              <div style={{ padding: '0.875rem 1.5rem', borderBottom: '1px solid var(--border-color)' }}>
+                <div style={{ position: 'relative', maxWidth: 320 }}>
+                  <Search size={14} style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--text-muted)', pointerEvents: 'none' }} />
+                  <input
+                    type="text" className="form-input"
+                    placeholder="Search products by name or SKU…"
+                    value={productSearch}
+                    onChange={e => setProductSearch(e.target.value)}
+                    style={{ paddingLeft: 32, margin: 0 }}
+                  />
+                </div>
+              </div>
+              <div style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))',
+                gap: '1rem', padding: '1.25rem 1.5rem',
+                maxHeight: '400px', overflowY: 'auto',
+              }}>
+                {catalogProducts.length === 0 ? (
+                  <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '2rem', color: 'var(--text-muted)', fontSize: '0.875rem' }}>
+                    No products match your search.
+                  </div>
+                ) : catalogProducts.map(p => (
+                  <CatalogCard key={p.id} product={p} onAddToCart={handleAddToCart} onImageClick={setLightboxUrl} getStockBadge={getStockBadge} />
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
 
       {/* ── Lightbox ─────────────────────────────────────────── */}
       {createPortal(

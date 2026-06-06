@@ -25,12 +25,12 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
   };
 
   const navItems = [
-    { key: 'dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { key: 'dashboard', path: '/dashboard', icon: LayoutDashboard, adminOnly: true },
     { key: 'products',  path: '/products',  icon: Package },
-    { key: 'customers', path: '/customers', icon: Users },
+    { key: 'customers', path: '/customers', icon: Users,            adminOnly: true },
     { key: 'orders',    path: '/orders',    icon: ShoppingCart },
     { key: 'settings',  path: '/settings',  icon: Settings },
-  ];
+  ].filter(item => !item.adminOnly || isAdmin);
 
   return (
     <aside

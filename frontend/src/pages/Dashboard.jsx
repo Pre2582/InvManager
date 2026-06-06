@@ -6,7 +6,8 @@ import {
   ArrowUpRight, Zap,
 } from 'lucide-react';
 import {
-  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
+  ComposedChart, Bar, Line, ReferenceLine,
+  XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, PieChart, Pie, Cell, Label,
 } from 'recharts';
 import useDashboard from '@/hooks/useDashboard';
@@ -92,24 +93,40 @@ const KpiCard = ({ title, rawValue, displayFn, icon: Icon, gradient, glow, desc 
   );
 };
 
-/* ── Area Chart Tooltip ──────────────────────────────────────── */
-const AreaTooltip = ({ active, payload, label }) => {
+/* ── Rounded-top bar shape ───────────────────────────────────── */
+const RoundedBar = ({ x, y, width, height, fill }) => {
+  if (!height || height <= 0) return null;
+  const r = Math.min(6, width / 2, height);
+  return (
+    <path
+      d={`M${x},${y + height} L${x},${y + r} Q${x},${y} ${x + r},${y} L${x + width - r},${y} Q${x + width},${y} ${x + width},${y + r} L${x + width},${y + height} Z`}
+      fill={fill}
+    />
+  );
+};
+
+/* ── Bar chart tooltip ───────────────────────────────────────── */
+const BarTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
+  const val = payload[0]?.value ?? 0;
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={{ opacity: 0, y: 6, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       style={{
-        background: '#fff',
-        border: '1px solid var(--border-color)',
-        borderRadius: 'var(--radius-md)',
-        padding: '0.65rem 1rem',
-        boxShadow: '0 8px 24px rgba(0,0,0,0.10)',
+        background: 'linear-gradient(135deg, #fff 0%, #f0fdfa 100%)',
+        border: '1px solid rgba(46,197,192,0.30)',
+        borderRadius: 12,
+        padding: '0.6rem 1rem',
+        boxShadow: '0 8px 28px rgba(46,197,192,0.18)',
+        minWidth: 110,
       }}
     >
-      <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', marginBottom: 3, fontWeight: 600 }}>{label}</p>
-      <p style={{ fontSize: '1rem', fontWeight: 800, color: '#2ec5c0' }}>{payload[0].value}</p>
-      <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>orders placed</p>
+      <p style={{ fontSize: '0.68rem', color: 'var(--text-muted)', marginBottom: 5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>{label}</p>
+      <div style={{ display: 'flex', alignItems: 'baseline', gap: 5 }}>
+        <span style={{ fontSize: '1.35rem', fontWeight: 800, color: '#2ec5c0', lineHeight: 1 }}>{val}</span>
+        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 500 }}>orders</span>
+      </div>
     </motion.div>
   );
 };
@@ -337,6 +354,7 @@ const Dashboard = () => {
   const totalChart = allStatusData.reduce((s, d) => s + d.value, 0) || totalOrders;
   const dailyAvg   = chartData.length ? Math.round(chartData.reduce((s, d) => s + d.count, 0) / chartData.length) : 0;
   const chartTotal = chartData.reduce((s, d) => s + d.count, 0);
+  const maxCount   = chartData.length ? Math.max(...chartData.map(d => d.count)) : 0;
 
   return (
     <div className="page-container">
@@ -490,18 +508,18 @@ const Dashboard = () => {
           ) : (
             <div style={{ flex: 1, minHeight: 240 }}>
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={chartData} margin={{ top: 8, right: 4, left: -22, bottom: 0 }}>
+                <ComposedChart data={chartData} margin={{ top: 12, right: 8, left: -22, bottom: 0 }}>
                   <defs>
-                    <linearGradient id="gradOrders" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%"   stopColor="#2ec5c0" stopOpacity={0.45} />
-                      <stop offset="100%" stopColor="#2ec5c0" stopOpacity={0.0} />
+                    <linearGradient id="barGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%"   stopColor="#2ec5c0" stopOpacity={0.95} />
+                      <stop offset="100%" stopColor="#0891b2" stopOpacity={0.5} />
                     </linearGradient>
-                    <linearGradient id="gradStroke" x1="0" y1="0" x2="1" y2="0">
-                      <stop offset="0%"   stopColor="#0891b2" />
-                      <stop offset="100%" stopColor="#2ec5c0" />
+                    <linearGradient id="barGradPeak" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%"   stopColor="#f59e0b" stopOpacity={1} />
+                      <stop offset="100%" stopColor="#d97706" stopOpacity={0.55} />
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 4" stroke="rgba(46,197,192,0.10)" vertical={false} />
+                  <CartesianGrid strokeDasharray="3 4" stroke="rgba(46,197,192,0.08)" vertical={false} />
                   <XAxis
                     dataKey="date" stroke="transparent"
                     tick={{ fill: 'var(--text-muted)', fontSize: 10, fontWeight: 500 }}
@@ -512,16 +530,36 @@ const Dashboard = () => {
                     tick={{ fill: 'var(--text-muted)', fontSize: 10 }}
                     tickLine={false} axisLine={false} allowDecimals={false}
                   />
-                  <Tooltip content={<AreaTooltip />} cursor={{ stroke: 'rgba(46,197,192,0.25)', strokeWidth: 1.5, strokeDasharray: '4 3' }} />
-                  <Area
-                    type="monotone" dataKey="count"
-                    stroke="url(#gradStroke)" strokeWidth={2.5}
-                    fill="url(#gradOrders)" fillOpacity={1}
-                    dot={false}
-                    activeDot={{ r: 5, fill: '#2ec5c0', stroke: '#fff', strokeWidth: 2, filter: 'drop-shadow(0 0 6px rgba(46,197,192,0.6))' }}
-                    animationDuration={1400} animationEasing="ease-out"
+                  <Tooltip content={<BarTooltip />} cursor={{ fill: 'rgba(46,197,192,0.06)', radius: [4, 4, 0, 0] }} />
+                  {dailyAvg > 0 && (
+                    <ReferenceLine
+                      y={dailyAvg}
+                      stroke="rgba(245,158,11,0.55)"
+                      strokeDasharray="5 4"
+                      strokeWidth={1.5}
+                      label={{ value: `avg ${dailyAvg}`, position: 'insideTopRight', fontSize: 9, fill: '#f59e0b', fontWeight: 700, dy: -6 }}
+                    />
+                  )}
+                  <Bar
+                    dataKey="count"
+                    shape={(props) => (
+                      <RoundedBar
+                        {...props}
+                        fill={props.value === maxCount && maxCount > 0 ? 'url(#barGradPeak)' : 'url(#barGrad)'}
+                      />
+                    )}
+                    animationDuration={1200}
+                    animationEasing="ease-out"
+                    maxBarSize={36}
                   />
-                </AreaChart>
+                  <Line
+                    type="monotone" dataKey="count"
+                    stroke="rgba(46,197,192,0.45)" strokeWidth={2}
+                    dot={{ r: 3, fill: '#2ec5c0', stroke: '#fff', strokeWidth: 1.5 }}
+                    activeDot={{ r: 5, fill: '#2ec5c0', stroke: '#fff', strokeWidth: 2 }}
+                    isAnimationActive={false}
+                  />
+                </ComposedChart>
               </ResponsiveContainer>
             </div>
           )}
