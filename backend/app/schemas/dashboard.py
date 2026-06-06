@@ -16,6 +16,7 @@ class OrdersByDayItem(BaseModel):
 class OrdersByStatus(BaseModel):
     pending: int = 0
     confirmed: int = 0
+    delivered: int = 0
     cancelled: int = 0
 
 

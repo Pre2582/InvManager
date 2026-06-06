@@ -72,10 +72,11 @@ class OrderRepository(BaseRepository[Order]):
         result = await self.session.execute(
             text("SELECT status::text, COUNT(*)::int AS count FROM orders GROUP BY status")
         )
-        counts = {"pending": 0, "confirmed": 0, "cancelled": 0}
+        counts = {"pending": 0, "confirmed": 0, "delivered": 0, "cancelled": 0}
         for row in result:
-            # DB stores uppercase names (PENDING/CONFIRMED/CANCELLED); normalise to lowercase
-            counts[str(row.status).lower()] = row.count
+            key = str(row.status).lower()
+            if key in counts:
+                counts[key] = row.count
         return counts
 
     async def get_recent_orders(self, limit: int = 5):

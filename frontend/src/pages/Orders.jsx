@@ -19,6 +19,7 @@ import OrderDetailModal from '@/features/orders/OrderDetailModal';
 import { formatCurrency, formatDateTime, shortId, statusVariant } from '@/utils/formatters';
 import useToast from '@/hooks/useToast';
 import useAuthStore from '@/store/authStore';
+import ConfirmDialog from '@/components/common/ConfirmDialog';
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 const STATUS_META = {
@@ -173,7 +174,7 @@ const OrderCard = ({ order, onView, onCancel, index }) => {
         </button>
         {order.status !== 'cancelled' && (
           <button
-            onClick={() => { if (window.confirm('Cancel this order? Stock will be restored.')) onCancel(order.id); }}
+            onClick={() => onCancel(order.id)}
             title="Cancel Order"
             style={{
               width: 32, height: 32, borderRadius: 8,
@@ -239,6 +240,7 @@ const Orders = () => {
   const [catalogOpen, setCatalogOpen]       = useState(true);
   const [lightboxUrl, setLightboxUrl]       = useState(null);
   const [productSearch, setProductSearch]   = useState('');
+  const [cancelTarget, setCancelTarget]     = useState(null);
   const toast = useToast();
 
   useEffect(() => { fetchOrders(); fetchCustomers(); fetchProducts(); }, [fetchOrders, fetchCustomers, fetchProducts]);
@@ -268,7 +270,20 @@ const Orders = () => {
   );
 
   const handleCreateOrder = async (payload) => { await createOrder(payload); fetchProducts(); };
-  const handleCancelOrder = async (orderId) => {
+
+  const handleCancelOrder = async () => {
+    if (!cancelTarget) return;
+    try {
+      await cancelOrder(cancelTarget);
+      fetchProducts();
+    } catch (err) {
+      toast.error(err.message || 'Failed to cancel order.');
+    } finally {
+      setCancelTarget(null);
+    }
+  };
+
+  const handleCancelOrderDirect = async (orderId) => {
     try { await cancelOrder(orderId); fetchProducts(); }
     catch (err) { toast.error(err.message || 'Failed to cancel order.'); }
   };
@@ -292,12 +307,12 @@ const Orders = () => {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         style={{
-          background: 'linear-gradient(135deg, #1a3a5c 0%, #1e4976 60%, #235d96 100%)',
+          background: 'linear-gradient(135deg, #2ec5c0 0%, #1aa8a3 55%, #0f8f8a 100%)',
           borderRadius: 'var(--radius-lg)',
           padding: '1.75rem 2rem',
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           flexWrap: 'wrap', gap: '1rem',
-          boxShadow: '0 4px 22px rgba(26,58,92,0.28)',
+          boxShadow: '0 4px 22px rgba(46,197,192,0.30)',
           position: 'relative', overflow: 'hidden',
         }}
       >
@@ -339,7 +354,7 @@ const Orders = () => {
             variant="primary"
             onClick={() => setIsOrderModalOpen(true)}
             icon={Plus}
-            style={{ background: 'rgba(255,255,255,0.95)', color: '#1a3a5c', boxShadow: '0 2px 10px rgba(0,0,0,0.15)' }}
+            style={{ background: 'rgba(255,255,255,0.95)', color: '#0f8f8a', boxShadow: '0 2px 10px rgba(0,0,0,0.15)' }}
           >
             Quick Order
           </Button>
@@ -553,7 +568,7 @@ const Orders = () => {
                   order={order}
                   index={i}
                   onView={(o) => { setSelectedOrder(o); setIsDetailModalOpen(true); }}
-                  onCancel={handleCancelOrder}
+                  onCancel={setCancelTarget}
                 />
               ))}
             </AnimatePresence>
@@ -602,8 +617,19 @@ const Orders = () => {
         isOpen={isDetailModalOpen}
         onClose={() => { setIsDetailModalOpen(false); setSelectedOrder(null); }}
         order={selectedOrder}
-        onCancelOrder={handleCancelOrder}
+        onCancelOrder={handleCancelOrderDirect}
         onStatusUpdated={() => { fetchOrders(); fetchProducts(); }}
+      />
+
+      <ConfirmDialog
+        isOpen={!!cancelTarget}
+        onClose={() => setCancelTarget(null)}
+        onConfirm={handleCancelOrder}
+        title="Cancel Order"
+        message="Are you sure you want to cancel this order? Stock will be restored."
+        confirmText="Yes, Cancel Order"
+        cancelText="Keep Order"
+        confirmVariant="danger"
       />
     </div>
   );

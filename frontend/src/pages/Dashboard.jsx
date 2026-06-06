@@ -326,14 +326,15 @@ const Dashboard = () => {
   const ordersByStatus   = summary?.orders_by_status ?? {};
   const recentOrders     = summary?.recent_orders   ?? [];
 
-  const statusChartData = [
+  const allStatusData = [
     { name: 'Confirmed', value: ordersByStatus.confirmed || 0, color: '#22c55e' },
     { name: 'Delivered', value: ordersByStatus.delivered || 0, color: '#2ec5c0' },
     { name: 'Pending',   value: ordersByStatus.pending   || 0, color: '#f59e0b' },
     { name: 'Cancelled', value: ordersByStatus.cancelled || 0, color: '#ef4444' },
-  ].filter(d => d.value > 0);
+  ];
+  const statusChartData = allStatusData.filter(d => d.value > 0);
 
-  const totalChart = statusChartData.reduce((s, d) => s + d.value, 0) || totalOrders;
+  const totalChart = allStatusData.reduce((s, d) => s + d.value, 0) || totalOrders;
   const dailyAvg   = chartData.length ? Math.round(chartData.reduce((s, d) => s + d.count, 0) / chartData.length) : 0;
   const chartTotal = chartData.reduce((s, d) => s + d.count, 0);
 
@@ -450,7 +451,7 @@ const Dashboard = () => {
       </motion.div>
 
       {/* ── Charts Row ───────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', alignItems: 'start' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', alignItems: 'stretch' }}>
 
         {/* ── Area Chart — Order Frequency ───────────────────── */}
         <motion.div
@@ -487,7 +488,7 @@ const Dashboard = () => {
               <p style={{ fontSize: '0.85rem' }}>No order data yet</p>
             </div>
           ) : (
-            <div style={{ height: 240 }}>
+            <div style={{ flex: 1, minHeight: 240 }}>
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData} margin={{ top: 8, right: 4, left: -22, bottom: 0 }}>
                   <defs>
@@ -547,9 +548,9 @@ const Dashboard = () => {
               <p style={{ fontSize: '0.85rem' }}>No orders yet</p>
             </div>
           ) : (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flexGrow: 1 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', flex: 1 }}>
               {/* Donut */}
-              <div style={{ width: 190, height: 210, flexShrink: 0 }}>
+              <div style={{ width: 190, minHeight: 210, flex: '0 0 190px', alignSelf: 'stretch', display: 'flex', flexDirection: 'column' }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
@@ -579,9 +580,9 @@ const Dashboard = () => {
                 </ResponsiveContainer>
               </div>
 
-              {/* Legend with animated bars */}
+              {/* Legend with animated bars — always shows all 4 statuses */}
               <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.85rem', justifyContent: 'center' }}>
-                {statusChartData.map((item, i) => (
+                {allStatusData.map((item, i) => (
                   <StatusLegendItem
                     key={item.name}
                     name={item.name}
