@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-from app.api.v1 import auth, customers, dashboard, orders, products
+from app.api.v1 import auth, customers, dashboard, orders, products, slides
 from app.core.config import settings
 from app.core.database import engine, AsyncSessionLocal
 from app.exceptions.handlers import AppException, app_exception_handler
@@ -72,6 +72,7 @@ app.include_router(products.router, prefix=API_V1_PREFIX)
 app.include_router(customers.router, prefix=API_V1_PREFIX)
 app.include_router(orders.router, prefix=API_V1_PREFIX)
 app.include_router(dashboard.router, prefix=API_V1_PREFIX)
+app.include_router(slides.router,   prefix=API_V1_PREFIX)
 
 
 # ─── Health Check ─────────────────────────────────────────────────────────────

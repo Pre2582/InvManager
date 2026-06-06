@@ -265,7 +265,7 @@ const itemVariants = {
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { token, login } = useAuthStore();
+  const { token, login, isAdmin } = useAuthStore();
 
   const [form, setForm]           = useState({ username: '', password: '' });
   const [showPass, setShowPass]   = useState(false);
@@ -287,8 +287,8 @@ const Login = () => {
   }, [location.state]);
 
   useEffect(() => {
-    if (token) navigate('/dashboard', { replace: true });
-  }, [token, navigate]);
+    if (token) navigate(isAdmin ? '/dashboard' : '/home', { replace: true });
+  }, [token, isAdmin, navigate]);
 
   const handleChange = (e) => {
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }));
@@ -312,7 +312,8 @@ const Login = () => {
     setError(null);
     try {
       await login(form.username, form.password);
-      navigate('/dashboard');
+      const { isAdmin: loggedInAsAdmin } = useAuthStore.getState();
+      navigate(loggedInAsAdmin ? '/dashboard' : '/home');
     } catch (err) {
       setError(err.message || 'Invalid credentials. Please try again.');
     } finally {

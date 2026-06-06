@@ -14,6 +14,7 @@ import {
 } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import useProducts from '@/hooks/useProducts';
+import { SkeletonProductCard } from '@/components/common/Skeleton';
 import useCartStore from '@/store/cartStore';
 import useAuthStore from '@/store/authStore';
 import Button from '@/components/common/Button';
@@ -196,8 +197,8 @@ const Products = () => {
 
       {/* Product Grid */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>
-          Loading products...
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))', gap: '1.25rem' }}>
+          {Array.from({ length: 8 }).map((_, i) => <SkeletonProductCard key={i} />)}
         </div>
       ) : filteredProducts.length === 0 ? (
         <div className="glass-card" style={{ textAlign: 'center', padding: '4rem', color: 'var(--text-muted)' }}>

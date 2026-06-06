@@ -20,6 +20,7 @@ import { formatCurrency, formatDateTime, shortId, statusVariant } from '@/utils/
 import useToast from '@/hooks/useToast';
 import useAuthStore from '@/store/authStore';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
+import { SkeletonOrderCard, SkeletonKpiCard, SkeletonProductCard } from '@/components/common/Skeleton';
 
 /* ── Helpers ─────────────────────────────────────────────────── */
 const STATUS_META = {
@@ -375,12 +376,20 @@ const Orders = () => {
 
       {/* ── Stats row (admin only) ───────────────────────────── */}
       {isAdmin && (
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <StatCard icon={ShoppingCart} label="Total Orders"  value={orders.length}                color="#2ec5c0" bg="#e0fafa" delay={0.05} />
-          <StatCard icon={Clock}        label="Pending"        value={countBy('pending')}            color="#f59e0b" bg="#fef3c7" delay={0.08} />
-          <StatCard icon={CheckCircle}  label="Delivered"      value={countBy('delivered')}          color="#22c55e" bg="#dcfce7" delay={0.11} />
-          <StatCard icon={DollarSign}   label="Total Revenue"  value={formatCurrency(totalRevenue)}  color="#6366f1" bg="#ede9fe" delay={0.14} />
-        </div>
+        <>
+          {ordersLoading && orders.length === 0 ? (
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              {Array.from({ length: 4 }).map((_, i) => <SkeletonKpiCard key={i} style={{ flex: '1 1 140px' }} />)}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+              <StatCard icon={ShoppingCart} label="Total Orders"  value={orders.length}                color="#2ec5c0" bg="#e0fafa" delay={0.05} />
+              <StatCard icon={Clock}        label="Pending"        value={countBy('pending')}            color="#f59e0b" bg="#fef3c7" delay={0.08} />
+              <StatCard icon={CheckCircle}  label="Delivered"      value={countBy('delivered')}          color="#22c55e" bg="#dcfce7" delay={0.11} />
+              <StatCard icon={DollarSign}   label="Total Revenue"  value={formatCurrency(totalRevenue)}  color="#6366f1" bg="#ede9fe" delay={0.14} />
+            </div>
+          )}
+        </>
       )}
 
       {/* ── Order History ─────────────────────────────────────── */}
@@ -433,13 +442,8 @@ const Orders = () => {
 
         {/* Order cards */}
         {ordersLoading ? (
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '3rem', gap: '0.75rem' }}>
-            <div style={{
-              width: 26, height: 26, borderRadius: '50%',
-              border: '3px solid var(--border-color)', borderTopColor: 'var(--primary)',
-              animation: 'spin 0.7s linear infinite',
-            }} />
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>Loading orders…</span>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+            {Array.from({ length: 5 }).map((_, i) => <SkeletonOrderCard key={i} />)}
           </div>
         ) : filteredOrders.length === 0 ? (
           <motion.div

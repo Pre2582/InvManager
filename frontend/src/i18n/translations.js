@@ -1,6 +1,6 @@
 export const translations = {
   en: {
-    dashboard: 'Dashboard', products: 'Products', customers: 'Customers',
+    home: 'Home', dashboard: 'Dashboard', landingAdmin: 'Landing Slider', products: 'Products', customers: 'Customers',
     orders: 'Orders', settings: 'Settings', signOut: 'Sign Out',
     totalRevenue: 'Total Revenue', totalProducts: 'Total Products',
     totalCustomers: 'Total Customers', totalOrders: 'Total Orders',
@@ -22,7 +22,7 @@ export const translations = {
     revenueFromOrders: 'Revenue from orders', dailyAverage: 'Daily avg',
   },
   hi: {
-    dashboard: 'डैशबोर्ड', products: 'उत्पाद', customers: 'ग्राहक',
+    home: 'होम', dashboard: 'डैशबोर्ड', landingAdmin: 'लैंडिंग स्लाइडर', products: 'उत्पाद', customers: 'ग्राहक',
     orders: 'आदेश', settings: 'सेटिंग्स', signOut: 'साइन आउट',
     totalRevenue: 'कुल राजस्व', totalProducts: 'कुल उत्पाद',
     totalCustomers: 'कुल ग्राहक', totalOrders: 'कुल आदेश',

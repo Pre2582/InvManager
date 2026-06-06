@@ -5,6 +5,7 @@ import {
   Mail, Phone, Calendar, Search, UserPlus, UserCheck,
 } from 'lucide-react';
 import useCustomers from '@/hooks/useCustomers';
+import { SkeletonCustomerCard } from '@/components/common/Skeleton';
 import Button from '@/components/common/Button';
 import ConfirmDialog from '@/components/common/ConfirmDialog';
 import CustomerModal from '@/features/customers/CustomerModal';
@@ -419,14 +420,8 @@ const Customers = () => {
 
       {/* ── Customer cards ───────────────────────────────────── */}
       {loading ? (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: '4rem', gap: '0.75rem' }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: '50%',
-            border: '3px solid var(--border-color)',
-            borderTopColor: 'var(--primary)',
-            animation: 'spin 0.7s linear infinite',
-          }} />
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>Loading customers…</span>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '1rem' }}>
+          {Array.from({ length: 6 }).map((_, i) => <SkeletonCustomerCard key={i} />)}
         </div>
       ) : filtered.length === 0 ? (
         <motion.div

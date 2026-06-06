@@ -89,6 +89,32 @@ export const autoFillSignup = () => {
   };
 };
 
+// ── Slide (Landing page hero carousel) ───────────────────────────────────────
+
+const SLIDE_TEMPLATES = [
+  { title: 'Summer Collection 2025',    subtitle: 'Fresh arrivals for the season',       badge_text: 'New Arrival', cta_text: 'Shop Now',      description: 'Discover our curated summer lineup — lightweight, vibrant, and built for the heat.' },
+  { title: 'Top Deals of the Month',    subtitle: 'Up to 40% off selected items',        badge_text: 'Hot Deal',    cta_text: 'Grab the Deal', description: 'Limited-time offers on our best-selling products. Don\'t miss out!' },
+  { title: 'New Tech Arrivals',         subtitle: 'The latest gadgets, just landed',     badge_text: 'Just In',     cta_text: 'Explore Now',   description: 'From smart accessories to cutting-edge peripherals — all new, all exciting.' },
+  { title: 'Winter Warmers Sale',       subtitle: 'Cosy picks at unbeatable prices',     badge_text: 'Sale',        cta_text: 'Shop Sale',     description: 'Stay warm without breaking the bank. Check our winter specials now.' },
+  { title: 'Office Essentials Bundle',  subtitle: 'Everything for the perfect workspace',badge_text: 'Bundle Deal', cta_text: 'Build My Desk', description: 'Ergonomic accessories, smart lighting, and productivity tools — all in one place.' },
+  { title: 'Premium Picks',            subtitle: 'Quality you can feel',                badge_text: 'Premium',     cta_text: 'View Collection', description: 'Hand-selected premium products for the discerning buyer.' },
+];
+
+export const autoFillSlide = () => {
+  const t = rand(SLIDE_TEMPLATES);
+  return {
+    title:       t.title,
+    subtitle:    t.subtitle,
+    description: t.description,
+    badge_text:  t.badge_text,
+    cta_text:    t.cta_text,
+    image_url:   rand(IMAGES),
+    price:       (randInt(499, 29999) / 100).toFixed(2),
+    is_active:   true,
+    sort_order:  randInt(0, 9),
+  };
+};
+
 /**
  * Autofill for the Order create modal.
  * Returns null if there are no customers or no in-stock products.

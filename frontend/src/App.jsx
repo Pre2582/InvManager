@@ -7,10 +7,19 @@ import Dashboard from '@/pages/Dashboard';
 import Products from '@/pages/Products';
 import Customers from '@/pages/Customers';
 import Orders from '@/pages/Orders';
+import Landing from '@/pages/Landing';
+import LandingAdmin from '@/pages/LandingAdmin';
 import Settings from '@/pages/Settings';
 import Login from '@/pages/Login';
 import Signup from '@/pages/Signup';
+import useAuthStore from '@/store/authStore';
 import '@/styles/globals.css';
+
+/* Redirect root based on role: admins → /dashboard, users → /home */
+const RootRedirect = () => {
+  const isAdmin = useAuthStore((s) => s.isAdmin);
+  return <Navigate to={isAdmin ? '/dashboard' : '/home'} replace />;
+};
 
 function App() {
   return (
@@ -22,8 +31,10 @@ function App() {
 
         {/* Protected routes — all rendered inside Layout */}
         <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
-          <Route path="/" element={<Navigate to="/orders" replace />} />
-          <Route path="/dashboard" element={<AdminRoute><Dashboard /></AdminRoute>} />
+          <Route path="/" element={<RootRedirect />} />
+          <Route path="/home" element={<Landing />} />
+          <Route path="/dashboard"     element={<AdminRoute><Dashboard /></AdminRoute>} />
+          <Route path="/landing-admin" element={<AdminRoute><LandingAdmin /></AdminRoute>} />
           <Route path="/products" element={<Products />} />
           <Route path="/customers" element={<AdminRoute><Customers /></AdminRoute>} />
           <Route path="/orders" element={<Orders />} />

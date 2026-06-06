@@ -10,6 +10,8 @@ import {
   Sparkles,
   LogOut,
   Settings,
+  Home,
+  Layers,
 } from 'lucide-react';
 import useAuthStore from '@/store/authStore';
 import useTranslation from '@/hooks/useTranslation';
@@ -25,12 +27,18 @@ const Sidebar = ({ collapsed, setCollapsed, mobileOpen, setMobileOpen }) => {
   };
 
   const navItems = [
-    { key: 'dashboard', path: '/dashboard', icon: LayoutDashboard, adminOnly: true },
-    { key: 'products',  path: '/products',  icon: Package },
-    { key: 'customers', path: '/customers', icon: Users,            adminOnly: true },
-    { key: 'orders',    path: '/orders',    icon: ShoppingCart },
-    { key: 'settings',  path: '/settings',  icon: Settings },
-  ].filter(item => !item.adminOnly || isAdmin);
+    { key: 'home',      path: '/home',      icon: Home,            userOnly: true  },
+    { key: 'dashboard',     path: '/dashboard',     icon: LayoutDashboard, adminOnly: true },
+    { key: 'landingAdmin',  path: '/landing-admin', icon: Layers,          adminOnly: true },
+    { key: 'products',      path: '/products',      icon: Package },
+    { key: 'customers',     path: '/customers',     icon: Users,           adminOnly: true },
+    { key: 'orders',        path: '/orders',        icon: ShoppingCart },
+    { key: 'settings',      path: '/settings',      icon: Settings },
+  ].filter(item => {
+    if (item.adminOnly) return isAdmin;
+    if (item.userOnly)  return !isAdmin;
+    return true;
+  });
 
   return (
     <aside

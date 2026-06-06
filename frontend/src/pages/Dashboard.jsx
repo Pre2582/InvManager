@@ -11,6 +11,7 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell, Label,
 } from 'recharts';
 import useDashboard from '@/hooks/useDashboard';
+import { SkeletonKpiCard, SkeletonChartCard, SkeletonRecentOrder } from '@/components/common/Skeleton';
 import Button from '@/components/common/Button';
 import Badge from '@/components/common/Badge';
 import ProductModal from '@/features/products/ProductModal';
@@ -424,11 +425,17 @@ const Dashboard = () => {
       </motion.div>
 
       {/* ── KPI Grid ─────────────────────────────────────────── */}
+      {loading && !summary ? (
+        <div className="dashboard-grid">
+          {Array.from({ length: 4 }).map((_, i) => <SkeletonKpiCard key={i} />)}
+        </div>
+      ) : null}
       <motion.div
         className="dashboard-grid"
         variants={stagger}
         initial="hidden"
         animate="show"
+        style={{ display: loading && !summary ? 'none' : undefined }}
       >
         <KpiCard
           title={t('totalRevenue')}
@@ -469,7 +476,13 @@ const Dashboard = () => {
       </motion.div>
 
       {/* ── Charts Row ───────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', alignItems: 'stretch' }}>
+      {loading && !summary ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          <SkeletonChartCard height={260} />
+          <SkeletonChartCard height={260} />
+        </div>
+      ) : null}
+      <div style={{ display: loading && !summary ? 'none' : 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', alignItems: 'stretch' }}>
 
         {/* ── Area Chart — Order Frequency ───────────────────── */}
         <motion.div
@@ -637,7 +650,15 @@ const Dashboard = () => {
       </div>
 
       {/* ── Bottom Row ────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', alignItems: 'start' }}>
+      {loading && !summary ? (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem' }}>
+          <div className="glass-card" style={{ display: 'flex', flexDirection: 'column' }}>
+            {Array.from({ length: 5 }).map((_, i) => <SkeletonRecentOrder key={i} />)}
+          </div>
+          <SkeletonChartCard height={200} />
+        </div>
+      ) : null}
+      <div style={{ display: loading && !summary ? 'none' : 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '1.25rem', alignItems: 'start' }}>
 
         {/* Recent Orders */}
         <motion.div
