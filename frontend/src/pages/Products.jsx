@@ -15,6 +15,7 @@ import {
 import { useOutletContext } from 'react-router-dom';
 import useProducts from '@/hooks/useProducts';
 import useCartStore from '@/store/cartStore';
+import useAuthStore from '@/store/authStore';
 import Button from '@/components/common/Button';
 import Badge from '@/components/common/Badge';
 import SearchBar from '@/components/common/SearchBar';
@@ -34,6 +35,7 @@ const Products = () => {
     deleteProduct,
   } = useProducts();
 
+  const { isAdmin } = useAuthStore();
   const { addToCart, openCart } = useCartStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -175,18 +177,20 @@ const Products = () => {
             placeholder="Search by name or SKU..."
             style={{ flexGrow: 1 }}
           />
-          <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-            <input type="file" accept=".csv" ref={fileInputRef} onChange={handleImportCSV} style={{ display: 'none' }} />
-            <Button variant="secondary" onClick={() => fileInputRef.current?.click()} icon={Upload} loading={importing}>
-              Import CSV
-            </Button>
-            <Button variant="secondary" onClick={handleExportCSV} icon={Download}>
-              Export
-            </Button>
-            <Button variant="primary" onClick={handleAddClick} icon={Plus}>
-              Add Product
-            </Button>
-          </div>
+          {isAdmin && (
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <input type="file" accept=".csv" ref={fileInputRef} onChange={handleImportCSV} style={{ display: 'none' }} />
+              <Button variant="secondary" onClick={() => fileInputRef.current?.click()} icon={Upload} loading={importing}>
+                Import CSV
+              </Button>
+              <Button variant="secondary" onClick={handleExportCSV} icon={Download}>
+                Export
+              </Button>
+              <Button variant="primary" onClick={handleAddClick} icon={Plus}>
+                Add Product
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
@@ -201,7 +205,7 @@ const Products = () => {
           <p style={{ fontWeight: 500, marginBottom: '0.5rem' }}>
             {searchTerm ? 'No products match your search' : 'No products yet'}
           </p>
-          {!searchTerm && (
+          {!searchTerm && isAdmin && (
             <Button variant="primary" onClick={handleAddClick} icon={Plus} style={{ marginTop: '1rem' }}>
               Add Product
             </Button>
@@ -222,6 +226,7 @@ const Products = () => {
               key={product.id}
               product={product}
               index={i}
+              isAdmin={isAdmin}
               onEdit={handleEditClick}
               onDelete={(id) => setDeleteId(id)}
               onAddToCart={handleAddToCart}
@@ -295,25 +300,28 @@ const Products = () => {
         document.body
       )}
 
-      <ProductModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSave={handleSaveProduct}
-        product={selectedProduct}
-      />
-
-      <ConfirmDialog
-        isOpen={!!deleteId}
-        onClose={() => setDeleteId(null)}
-        onConfirm={handleDeleteConfirm}
-        title="Delete Product"
-        message="Are you sure you want to delete this product? All active order items referencing this product will remain, but the item will be permanently removed from catalog inventory."
-      />
+      {isAdmin && (
+        <>
+          <ProductModal
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSave={handleSaveProduct}
+            product={selectedProduct}
+          />
+          <ConfirmDialog
+            isOpen={!!deleteId}
+            onClose={() => setDeleteId(null)}
+            onConfirm={handleDeleteConfirm}
+            title="Delete Product"
+            message="Are you sure you want to delete this product? All active order items referencing this product will remain, but the item will be permanently removed from catalog inventory."
+          />
+        </>
+      )}
     </div>
   );
 };
 
-const ProductCard = ({ product, index, onEdit, onDelete, onAddToCart, onImageClick, getStockBadge }) => {
+const ProductCard = ({ product, index, isAdmin, onEdit, onDelete, onAddToCart, onImageClick, getStockBadge }) => {
   const [imgError, setImgError] = useState(false);
   const [hovered, setHovered] = useState(false);
 
@@ -475,21 +483,25 @@ const ProductCard = ({ product, index, onEdit, onDelete, onAddToCart, onImageCli
         >
           {product.quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
         </Button>
-        <button
-          className="btn-icon"
-          onClick={() => onEdit(product)}
-          title="Edit product"
-        >
-          <Edit2 size={16} />
-        </button>
-        <button
-          className="btn-icon"
-          onClick={() => onDelete(product.id)}
-          style={{ color: 'var(--danger)' }}
-          title="Delete product"
-        >
-          <Trash2 size={16} />
-        </button>
+        {isAdmin && (
+          <>
+            <button
+              className="btn-icon"
+              onClick={() => onEdit(product)}
+              title="Edit product"
+            >
+              <Edit2 size={16} />
+            </button>
+            <button
+              className="btn-icon"
+              onClick={() => onDelete(product.id)}
+              style={{ color: 'var(--danger)' }}
+              title="Delete product"
+            >
+              <Trash2 size={16} />
+            </button>
+          </>
+        )}
       </div>
     </motion.div>
   );
