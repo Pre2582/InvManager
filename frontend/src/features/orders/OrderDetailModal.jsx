@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Modal from '@/components/common/Modal';
 import Button from '@/components/common/Button';
 import Badge from '@/components/common/Badge';
+import ConfirmDialog from '@/components/common/ConfirmDialog';
 import { formatCurrency, formatDateTime, shortId, statusVariant } from '@/utils/formatters';
 import {
   User, Mail, Phone, Calendar, FileText, XCircle,
@@ -261,6 +262,7 @@ const OrderDetailModal = ({ isOpen, onClose, order, onCancelOrder, onStatusUpdat
   const toast = useToast();
   const [pendingTransition, setPendingTransition] = useState(null);
   const [applyingStatus, setApplyingStatus] = useState(false);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
 
   if (!order) return null;
 
@@ -288,11 +290,14 @@ const OrderDetailModal = ({ isOpen, onClose, order, onCancelOrder, onStatusUpdat
   };
 
   const handleCancelOrder = () => {
-    setPendingTransition(null); // close confirm popup first if open
-    if (window.confirm('Cancel this order? Stock will be restored for all line items.')) {
-      onCancelOrder(order.id);
-      onClose();
-    }
+    setPendingTransition(null);
+    setShowCancelConfirm(true);
+  };
+
+  const handleConfirmCancel = () => {
+    setShowCancelConfirm(false);
+    onCancelOrder(order.id);
+    onClose();
   };
 
   const footer = (
@@ -478,6 +483,33 @@ const OrderDetailModal = ({ isOpen, onClose, order, onCancelOrder, onStatusUpdat
         onConfirm={handleConfirmStatus}
         onClose={() => !applyingStatus && setPendingTransition(null)}
         loading={applyingStatus}
+      />
+
+      {/* Cancel Order Confirmation — replaces window.confirm */}
+      <ConfirmDialog
+        isOpen={showCancelConfirm}
+        onClose={() => setShowCancelConfirm(false)}
+        onConfirm={handleConfirmCancel}
+        title="Cancel Order"
+        message={
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+            <p>Are you sure you want to cancel order <strong style={{ color: 'var(--primary)' }}>{shortId(order.id)}</strong>?</p>
+            <div style={{
+              display: 'flex', alignItems: 'flex-start', gap: '0.6rem',
+              padding: '0.75rem 1rem',
+              background: 'var(--danger-glow)',
+              border: '1px solid var(--danger-border)',
+              borderRadius: 'var(--radius-md)',
+              fontSize: '0.875rem', color: 'var(--danger)',
+            }}>
+              <span style={{ fontSize: '1rem', flexShrink: 0 }}>⚠️</span>
+              <span>Stock levels for all items in this order will be <strong>restored</strong>. This action cannot be undone.</span>
+            </div>
+          </div>
+        }
+        confirmText="Yes, Cancel Order"
+        cancelText="Keep Order"
+        confirmVariant="danger"
       />
     </>
   );
