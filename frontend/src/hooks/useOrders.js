@@ -20,7 +20,7 @@ const useOrders = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast.error]);
 
   const createOrder = useCallback(async (payload) => {
     const order = await ordersApi.createOrder(payload);

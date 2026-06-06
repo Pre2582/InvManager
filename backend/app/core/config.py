@@ -19,7 +19,8 @@ class Settings(BaseSettings):
     # JWT Authentication
     JWT_SECRET_KEY: str = "supersecretkey_change_me_in_production_9af3d298ea"
     JWT_ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 10
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60
 
     model_config = SettingsConfigDict(
         env_file=".env",

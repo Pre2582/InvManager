@@ -20,7 +20,7 @@ const useProducts = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast.error]);
 
   const createProduct = useCallback(async (payload) => {
     const product = await productsApi.createProduct(payload);

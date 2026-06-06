@@ -44,14 +44,11 @@ const Products = () => {
   const fileInputRef = useRef(null);
   const toast = useToast();
 
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
+  useEffect(() => { fetchProducts(); }, [fetchProducts]);
 
-  // Re-fetch when an order is placed via cart (refreshKey bumps)
   useEffect(() => {
     if (refreshKey > 0) fetchProducts();
-  }, [refreshKey]);
+  }, [refreshKey, fetchProducts]);
 
   const filteredProducts = products.filter(
     (p) =>

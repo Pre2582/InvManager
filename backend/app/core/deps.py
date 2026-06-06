@@ -54,16 +54,32 @@ def verify_password(password: str, hashed_password: str) -> bool:
 # ─── JWT Utilities ─────────────────────────────────────────────────────────────
 
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
-    """Create a new signed JWT access token."""
+    """Create a new signed JWT access token (expires in ACCESS_TOKEN_EXPIRE_MINUTES)."""
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.now(timezone.utc) + expires_delta
-    else:
-        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
-    return encoded_jwt
+    expire = datetime.now(timezone.utc) + (
+        expires_delta if expires_delta
+        else timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+    )
+    to_encode.update({"exp": expire, "type": "access"})
+    return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+
+
+def create_refresh_token(data: dict) -> str:
+    """Create a signed JWT refresh token (expires in REFRESH_TOKEN_EXPIRE_MINUTES)."""
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(minutes=settings.REFRESH_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire, "type": "refresh"})
+    return jwt.encode(to_encode, settings.JWT_SECRET_KEY, algorithm=settings.JWT_ALGORITHM)
+
+
+def decode_token(token: str) -> dict:
+    """Decode and return the JWT payload; raises UnauthorizedError on any failure."""
+    try:
+        return jwt.decode(token, settings.JWT_SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+    except jwt.ExpiredSignatureError:
+        raise UnauthorizedError("Token has expired.")
+    except jwt.InvalidTokenError:
+        raise UnauthorizedError("Invalid token.")
 
 
 # ─── Current User Dependency ──────────────────────────────────────────────────
@@ -72,32 +88,21 @@ async def get_current_user(
     token: Optional[str] = Depends(oauth2_scheme),
     db: AsyncSession = Depends(get_db)
 ) -> User:
-    """
-    Extract access token, decode it, and retrieve the current authenticated User.
-    Raises UnauthorizedError if validation fails.
-    """
+    """Decode access token and return the authenticated user."""
     if not token:
         raise UnauthorizedError("Authentication token is missing. Please log in.")
 
-    try:
-        payload = jwt.decode(
-            token,
-            settings.JWT_SECRET_KEY,
-            algorithms=[settings.JWT_ALGORITHM]
-        )
-        username: str = payload.get("sub")
-        if username is None:
-            raise UnauthorizedError("Token is missing user identifier.")
-    except jwt.ExpiredSignatureError:
-        raise UnauthorizedError("Session has expired. Please log in again.")
-    except jwt.InvalidTokenError:
-        raise UnauthorizedError("Invalid authentication token.")
+    payload  = decode_token(token)
+    if payload.get("type") != "access":
+        raise UnauthorizedError("A valid access token is required.")
+    username = payload.get("sub")
+    if not username:
+        raise UnauthorizedError("Token is missing user identifier.")
 
     user_repo = UserRepository(db)
     user = await user_repo.get_by_username(username)
     if user is None:
         raise UnauthorizedError("User associated with this token does not exist.")
-
     return user
 
 

@@ -243,9 +243,19 @@ const Orders = () => {
   const [cancelTarget, setCancelTarget]     = useState(null);
   const toast = useToast();
 
-  useEffect(() => { fetchOrders(); fetchCustomers(); fetchProducts(); }, [fetchOrders, fetchCustomers, fetchProducts]);
-  useEffect(() => { if (refreshKey > 0) { fetchOrders(); fetchProducts(); } }, [refreshKey]);
-  useEffect(() => { if (products.length > 0) syncStockLimits(products); }, [products]);
+  useEffect(() => {
+    fetchOrders();
+    fetchProducts();
+    if (isAdmin) fetchCustomers();
+  }, [fetchOrders, fetchProducts, fetchCustomers, isAdmin]);
+
+  useEffect(() => {
+    if (refreshKey > 0) { fetchOrders(); fetchProducts(); }
+  }, [refreshKey, fetchOrders, fetchProducts]);
+
+  useEffect(() => {
+    if (products.length > 0) syncStockLimits(products);
+  }, [products, syncStockLimits]);
 
   /* ── Derived stats ─────────────────────────────────────────── */
   const totalRevenue = orders
@@ -340,24 +350,26 @@ const Orders = () => {
 
         <div style={{ display: 'flex', gap: '0.6rem', zIndex: 1 }}>
           {isAdmin && (
-            <div style={{
-              display: 'flex', alignItems: 'center', gap: 6,
-              padding: '0.4rem 0.9rem', borderRadius: 50,
-              background: 'rgba(255,255,255,0.15)',
-              border: '1px solid rgba(255,255,255,0.2)',
-              color: 'rgba(255,255,255,0.9)', fontSize: '0.78rem', fontWeight: 600,
-            }}>
-              🛡️ Admin
-            </div>
+            <>
+              <div style={{
+                display: 'flex', alignItems: 'center', gap: 6,
+                padding: '0.4rem 0.9rem', borderRadius: 50,
+                background: 'rgba(255,255,255,0.15)',
+                border: '1px solid rgba(255,255,255,0.2)',
+                color: 'rgba(255,255,255,0.9)', fontSize: '0.78rem', fontWeight: 600,
+              }}>
+                🛡️ Admin
+              </div>
+              <Button
+                variant="primary"
+                onClick={() => setIsOrderModalOpen(true)}
+                icon={Plus}
+                style={{ background: 'rgba(255,255,255,0.95)', color: '#0f8f8a', boxShadow: '0 2px 10px rgba(0,0,0,0.15)' }}
+              >
+                Quick Order
+              </Button>
+            </>
           )}
-          <Button
-            variant="primary"
-            onClick={() => setIsOrderModalOpen(true)}
-            icon={Plus}
-            style={{ background: 'rgba(255,255,255,0.95)', color: '#0f8f8a', boxShadow: '0 2px 10px rgba(0,0,0,0.15)' }}
-          >
-            Quick Order
-          </Button>
         </div>
       </motion.div>
 
@@ -608,13 +620,15 @@ const Orders = () => {
       )}
 
       {/* ── Modals ───────────────────────────────────────────── */}
-      <OrderModal
-        isOpen={isOrderModalOpen}
-        onClose={() => setIsOrderModalOpen(false)}
-        onSave={handleCreateOrder}
-        customers={customers}
-        products={products}
-      />
+      {isAdmin && (
+        <OrderModal
+          isOpen={isOrderModalOpen}
+          onClose={() => setIsOrderModalOpen(false)}
+          onSave={handleCreateOrder}
+          customers={customers}
+          products={products}
+        />
+      )}
       <OrderDetailModal
         isOpen={isDetailModalOpen}
         onClose={() => { setIsDetailModalOpen(false); setSelectedOrder(null); }}

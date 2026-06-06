@@ -1,17 +1,15 @@
+import { useCallback } from 'react';
 import useToastStore from '@/store/toastStore';
 
-/**
- * Convenience hook that exposes typed toast helpers.
- */
 const useToast = () => {
   const addToast = useToastStore((s) => s.addToast);
 
-  return {
-    success: (message) => addToast({ type: 'success', message }),
-    error: (message) => addToast({ type: 'error', message }),
-    info: (message) => addToast({ type: 'info', message }),
-    warning: (message) => addToast({ type: 'warning', message }),
-  };
+  const success = useCallback((message) => addToast({ type: 'success', message }), [addToast]);
+  const error   = useCallback((message) => addToast({ type: 'error',   message }), [addToast]);
+  const info    = useCallback((message) => addToast({ type: 'info',    message }), [addToast]);
+  const warning = useCallback((message) => addToast({ type: 'warning', message }), [addToast]);
+
+  return { success, error, info, warning };
 };
 
 export default useToast;

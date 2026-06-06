@@ -20,7 +20,7 @@ const useCustomers = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast.error]);
 
   const createCustomer = useCallback(async (payload) => {
     const customer = await customersApi.createCustomer(payload);

@@ -20,7 +20,7 @@ const useDashboard = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [toast.error]);
 
   return { summary, loading, error, fetchSummary };
 };
